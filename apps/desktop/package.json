@@ -1,0 +1,49 @@
+{
+  "name": "@itera/desktop",
+  "productName": "Itera",
+  "version": "1.0.0",
+  "description": "Electron desktop for Itera's review-first coding workflow",
+  "main": ".vite/build/main.js",
+  "private": true,
+  "scripts": {
+    "dev": "electron-forge start",
+    "build": "vite build --config vite.renderer.config.ts",
+    "package": "electron-forge package",
+    "make": "electron-forge make",
+    "publish": "electron-forge publish",
+    "lint": "eslint --ext .ts,.tsx .",
+    "test": "vitest run"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "devDependencies": {
+    "@electron-forge/cli": "^7.11.1",
+    "@electron-forge/maker-deb": "^7.11.1",
+    "@electron-forge/maker-rpm": "^7.11.1",
+    "@electron-forge/maker-squirrel": "^7.11.1",
+    "@electron-forge/maker-zip": "^7.11.1",
+    "@electron-forge/plugin-auto-unpack-natives": "^7.11.1",
+    "@electron-forge/plugin-fuses": "^7.11.1",
+    "@electron-forge/plugin-vite": "^7.11.1",
+    "@electron/fuses": "^1.8.0",
+    "@tailwindcss/vite": "^4.2.2",
+    "@types/electron-squirrel-startup": "^1.0.2",
+    "@types/react-dom": "^19.2.3",
+    "@typescript-eslint/eslint-plugin": "^5.62.0",
+    "@typescript-eslint/parser": "^5.62.0",
+    "electron": "41.2.1",
+    "eslint": "^8.57.1",
+    "eslint-plugin-import": "^2.32.0",
+    "shiki": "^3.23.0",
+    "tailwindcss": "^4.2.2",
+    "typescript": "~4.5.4",
+    "vite": "^5.4.21",
+    "vitest": "^4.1.5"
+  },
+  "dependencies": {
+    "@pierre/diffs": "^1.1.16",
+    "electron-squirrel-startup": "^1.0.1",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5"
+  }
+}

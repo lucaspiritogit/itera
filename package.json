@@ -1,0 +1,22 @@
+{
+  "name": "itera",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Review-first desktop harness for agentic coding",
+  "license": "Apache-2.0",
+  "workspaces": ["apps/*"],
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "lint": "turbo run lint",
+    "test": "npm test --workspace apps/desktop",
+    "audit": "npm audit --workspaces"
+  },
+  "devDependencies": {
+    "turbo": "^2.5.4"
+  },
+  "packageManager": "npm@10.9.2",
+  "engines": {
+    "node": ">=20"
+  }
+}
