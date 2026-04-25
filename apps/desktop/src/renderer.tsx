@@ -17,6 +17,25 @@ import { ExplorationFinding } from "./components/ExplorationFinding";
 import "./index.css";
 
 const DEFAULT_CWD = "";
+const DEFAULT_MODEL = "gpt-5.4-mini";
+const CODEX_ICON_URL = new URL("../assets/codex.svg", import.meta.url).href;
+
+const AGENT_OPTIONS = [
+	{
+		id: "codex",
+		label: "Codex",
+		iconUrl: CODEX_ICON_URL,
+	},
+] as const;
+
+const MODEL_OPTIONS = [
+	{ id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
+	{ id: "gpt-5.4", label: "GPT-5.4" },
+	{ id: "gpt-5.3-codex", label: "GPT-5.3 Codex" },
+] as const;
+
+type AgentId = (typeof AGENT_OPTIONS)[number]["id"];
+type ModelId = (typeof MODEL_OPTIONS)[number]["id"];
 
 function isEditableTarget(target: EventTarget | null): boolean {
 	if (!(target instanceof HTMLElement)) {
@@ -62,8 +81,137 @@ function reviewTargetLabel(snapshot: AgentSessionSnapshot): string {
 	return "Selected review item";
 }
 
+function AgentIcon({ iconUrl, label }: { iconUrl: string; label: string }) {
+	return (
+		<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-neutral-800 bg-neutral-100">
+			<img src={iconUrl} alt="" aria-hidden className="h-3.5 w-3.5" />
+			<span className="sr-only">{label}</span>
+		</span>
+	);
+}
+
+function AgentSelector({
+	value,
+	disabled,
+	onChange,
+}: {
+	value: AgentId;
+	disabled: boolean;
+	onChange: (value: AgentId) => void;
+}) {
+	const [open, setOpen] = useState(false);
+	const selected =
+		AGENT_OPTIONS.find((option) => option.id === value) ?? AGENT_OPTIONS[0];
+
+	return (
+		<div className="relative min-w-0">
+			<button
+				type="button"
+				onClick={() => setOpen((current) => !current)}
+				disabled={disabled}
+				aria-haspopup="listbox"
+				aria-expanded={open}
+				className="flex h-9 min-w-32 items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 px-2.5 text-xs text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-cyan-400 disabled:opacity-60"
+			>
+				<AgentIcon iconUrl={selected.iconUrl} label={selected.label} />
+				<span className="truncate">{selected.label}</span>
+				<span className="ml-auto text-neutral-500" aria-hidden>
+					^
+				</span>
+			</button>
+			{open ? (
+				<div
+					role="listbox"
+					className="absolute bottom-full left-0 z-20 mb-1 w-full min-w-40 rounded-md border border-neutral-800 bg-black p-1 shadow-xl shadow-black/40"
+				>
+					{AGENT_OPTIONS.map((option) => (
+						<button
+							key={option.id}
+							type="button"
+							role="option"
+							aria-selected={option.id === value}
+							onClick={() => {
+								onChange(option.id);
+								setOpen(false);
+							}}
+							className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-neutral-100 enabled:cursor-pointer enabled:hover:bg-neutral-900"
+						>
+							<AgentIcon iconUrl={option.iconUrl} label={option.label} />
+							<span>{option.label}</span>
+						</button>
+					))}
+				</div>
+			) : null}
+		</div>
+	);
+}
+
+function ModelSelector({
+	value,
+	disabled,
+	onChange,
+}: {
+	value: ModelId;
+	disabled: boolean;
+	onChange: (value: ModelId) => void;
+}) {
+	const [open, setOpen] = useState(false);
+	const selected =
+		MODEL_OPTIONS.find((option) => option.id === value) ?? MODEL_OPTIONS[0];
+
+	return (
+		<div className="relative min-w-0">
+			<button
+				type="button"
+				onClick={() => setOpen((current) => !current)}
+				disabled={disabled}
+				aria-haspopup="listbox"
+				aria-expanded={open}
+				className="flex h-9 min-w-44 items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 px-2.5 text-xs text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-cyan-400 disabled:opacity-60"
+			>
+				<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-cyan-400/40 bg-cyan-400/10 text-[10px] text-cyan-100">
+					M
+				</span>
+				<span className="truncate">{selected.label}</span>
+				<span className="ml-auto text-neutral-500" aria-hidden>
+					^
+				</span>
+			</button>
+			{open ? (
+				<div
+					role="listbox"
+					className="absolute bottom-full left-0 z-20 mb-1 w-full min-w-52 rounded-md border border-neutral-800 bg-black p-1 shadow-xl shadow-black/40"
+				>
+					{MODEL_OPTIONS.map((option) => (
+						<button
+							key={option.id}
+							type="button"
+							role="option"
+							aria-selected={option.id === value}
+							onClick={() => {
+								onChange(option.id);
+								setOpen(false);
+							}}
+							className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs enabled:cursor-pointer enabled:hover:bg-neutral-900 ${
+								option.id === value ? "text-cyan-100" : "text-neutral-300"
+							}`}
+						>
+							<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-cyan-400/40 bg-cyan-400/10 text-[10px] text-cyan-100">
+								M
+							</span>
+							<span>{option.label}</span>
+						</button>
+					))}
+				</div>
+			) : null}
+		</div>
+	);
+}
+
 const App = () => {
 	const [cwd, setCwd] = useState(DEFAULT_CWD);
+	const [selectedAgent, setSelectedAgent] = useState<AgentId>("codex");
+	const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL);
 	const [connectNonce, setConnectNonce] = useState(0);
 	const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 	const [reviewDiffStyle, setReviewDiffStyle] =
@@ -114,11 +262,11 @@ const App = () => {
 			session.disconnect();
 			return;
 		}
-		session.connect({ cwd });
+		session.connect({ cwd, model: selectedModel });
 		return () => {
 			session.disconnect();
 		};
-	}, [connectNonce, cwd, session]);
+	}, [connectNonce, cwd, selectedModel, session]);
 
 	useEffect(() => {
 		if (
@@ -401,6 +549,18 @@ const App = () => {
 					</div>
 					<div className="sticky bottom-0 z-10 shrink-0 bg-gradient-to-t from-black via-black/95 to-transparent px-4 pb-4 pt-2">
 						<div className="mx-auto w-full max-w-3xl">
+							<div className="mb-2 flex flex-wrap items-center gap-2">
+								<AgentSelector
+									value={selectedAgent}
+									disabled={snapshot.status === "connecting" || snapshot.hasActiveTurn}
+									onChange={setSelectedAgent}
+								/>
+								<ModelSelector
+									value={selectedModel}
+									disabled={snapshot.status === "connecting" || snapshot.hasActiveTurn}
+									onChange={setSelectedModel}
+								/>
+							</div>
 							{isReviewing ? (
 								<ReviewPromptInput
 									targetLabel={reviewTargetLabel(snapshot)}
