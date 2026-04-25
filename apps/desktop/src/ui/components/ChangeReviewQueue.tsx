@@ -6,14 +6,14 @@ import {
 // eslint-disable-next-line import/no-unresolved
 import PierreDiffsWorker from "@pierre/diffs/worker/worker.js?worker";
 import { useMemo } from "react";
-import type { ReviewCard } from "../reviewDiff";
+import type { ReviewDecision } from "../../features/agent-session/model/reviewDecision";
+import type { ReviewCard } from "../../features/review/reviewDiff";
 
 const DIFF_OPTIONS = {
 	theme: "pierre-dark" as const,
 	overflow: "scroll" as const,
 };
 
-export type ReviewDecision = "pending" | "accepted" | "denied";
 export type ReviewDiffStyle = "unified" | "split";
 
 export type ChangeReviewQueueProps = {

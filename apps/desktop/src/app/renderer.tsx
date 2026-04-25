@@ -2,19 +2,27 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
 	createAgentSessionOrchestrator,
-} from "./agentSession/orchestrator";
-import { createDefaultAgentSessionPorts } from "./agentSession/defaults";
-import type { AgentSessionSnapshot } from "./agentSession/types";
+	createDefaultAgentSessionPorts,
+	type AgentSessionSnapshot,
+} from "../features/agent-session/agent-session";
+import { createSessionLifecycleController } from "../features/agent-session/provider-session";
+import {
+	createDefaultSessionShortcutPolicy,
+	createSessionShortcutController,
+	createSessionCommandPort,
+	createSessionGateReader,
+	createWindowKeyboardPort,
+} from "../features/agent-session/review-workflow";
 import {
 	AgentPromptInput,
 	ReviewPromptInput,
-} from "./components/AgentPromptInput";
+} from "../ui/components/AgentPromptInput";
 import {
 	ChangeReviewQueue,
 	type ReviewDiffStyle,
-} from "./components/ChangeReviewQueue";
-import { ExplorationFinding } from "./components/ExplorationFinding";
-import "./index.css";
+} from "../ui/components/ChangeReviewQueue";
+import { ExplorationFinding } from "../ui/components/ExplorationFinding";
+import "../shared/styles/index.css";
 
 const DEFAULT_CWD = "";
 const DEFAULT_MODEL = "gpt-5.4-mini";
@@ -192,9 +200,8 @@ function ModelSelector({
 								onChange(option.id);
 								setOpen(false);
 							}}
-							className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs enabled:cursor-pointer enabled:hover:bg-neutral-900 ${
-								option.id === value ? "text-cyan-100" : "text-neutral-300"
-							}`}
+							className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs enabled:cursor-pointer enabled:hover:bg-neutral-900 ${option.id === value ? "text-cyan-100" : "text-neutral-300"
+								}`}
 						>
 							<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-cyan-400/40 bg-cyan-400/10 text-[10px] text-cyan-100">
 								M
@@ -228,6 +235,45 @@ const App = () => {
 	);
 	const [snapshot, setSnapshot] = useState(() => session.getSnapshot());
 	const chatEndRef = useRef<HTMLDivElement | null>(null);
+	const snapshotRef = useRef(snapshot);
+	snapshotRef.current = snapshot;
+	const keyboardController = useMemo(
+		() =>
+			createSessionShortcutController({
+				policy: createDefaultSessionShortcutPolicy(),
+			}),
+		[],
+	);
+	const lifecycleController = useMemo(
+		() =>
+			createSessionLifecycleController({
+				connect: (input) => session.connect(input),
+				disconnect: () => session.disconnect(),
+			}),
+		[session],
+	);
+	const keyboardPort = useMemo(
+		() =>
+			createWindowKeyboardPort({
+				isEditableTarget,
+			}),
+		[],
+	);
+	const commandPort = useMemo(
+		() =>
+			createSessionCommandPort({
+				session,
+				onToggleReviewDiffStyle: () =>
+					setReviewDiffStyle((current) =>
+						current === "unified" ? "split" : "unified",
+					),
+			}),
+		[session],
+	);
+	const readGate = useMemo(
+		() => createSessionGateReader(snapshotRef),
+		[],
+	);
 
 	const scrollToChatEnd = useCallback(() => {
 		const node = chatEndRef.current;
@@ -258,109 +304,26 @@ const App = () => {
 	}, [session]);
 
 	useEffect(() => {
-		if (cwd.trim().length === 0) {
-			session.disconnect();
-			return;
-		}
-		session.connect({ cwd, model: selectedModel });
+		lifecycleController.update({
+			cwd,
+			model: selectedModel,
+			reconnectToken: connectNonce,
+		});
 		return () => {
-			session.disconnect();
+			lifecycleController.dispose();
 		};
-	}, [connectNonce, cwd, selectedModel, session]);
+	}, [connectNonce, cwd, selectedModel, lifecycleController]);
 
 	useEffect(() => {
-		if (
-			snapshot.hasActiveTurn ||
-			!snapshot.reviewBatch ||
-			snapshot.reviewBatch.cards.length === 0
-		) {
-			return;
-		}
-		const onKeyDown = (event: KeyboardEvent) => {
-			const isAcceptShortcut =
-				event.key === "Enter" && (event.metaKey || event.ctrlKey);
-			if (isEditableTarget(event.target) && !isAcceptShortcut) {
-				return;
-			}
-			if (event.key === "ArrowRight") {
-				event.preventDefault();
-				session.moveReviewCursor(1);
-				return;
-			}
-			if (event.key === "ArrowLeft") {
-				event.preventDefault();
-				session.moveReviewCursor(-1);
-				return;
-			}
-			const active = snapshot.reviewBatch.cards[snapshot.reviewBatch.activeIndex];
-			if (!active) {
-				return;
-			}
-			if (isAcceptShortcut) {
-				event.preventDefault();
-				session.setReviewDecision(active.id, "accepted");
-				return;
-			}
-			if (event.key.toLowerCase() === "d") {
-				event.preventDefault();
-				session.setReviewDecision(active.id, "denied");
-				return;
-			}
-			if (event.key.toLowerCase() === "v") {
-				event.preventDefault();
-				setReviewDiffStyle((current) =>
-					current === "unified" ? "split" : "unified",
-				);
-			}
-		};
-		window.addEventListener("keydown", onKeyDown);
+		const stop = keyboardController.start({
+			keyboard: keyboardPort,
+			commandPort,
+			readGate,
+		});
 		return () => {
-			window.removeEventListener("keydown", onKeyDown);
+			stop();
 		};
-	}, [session, snapshot.hasActiveTurn, snapshot.reviewBatch]);
-
-	useEffect(() => {
-		if (snapshot.hasActiveTurn || !snapshot.pendingExplorationDecision) {
-			return;
-		}
-		const onKeyDown = (event: KeyboardEvent) => {
-			const isAcceptShortcut =
-				event.key === "Enter" && (event.metaKey || event.ctrlKey);
-			if (isEditableTarget(event.target) && !isAcceptShortcut) {
-				return;
-			}
-			if (isAcceptShortcut) {
-				event.preventDefault();
-				session.resolveFinding("approve");
-				return;
-			}
-			if (event.key.toLowerCase() === "d") {
-				event.preventDefault();
-				session.resolveFinding("dismiss");
-			}
-		};
-		window.addEventListener("keydown", onKeyDown);
-		return () => {
-			window.removeEventListener("keydown", onKeyDown);
-		};
-	}, [session, snapshot.hasActiveTurn, snapshot.pendingExplorationDecision]);
-
-	useEffect(() => {
-		if (!snapshot.hasActiveTurn) {
-			return;
-		}
-		const onKeyDown = (event: KeyboardEvent) => {
-			if (event.key !== "Escape") {
-				return;
-			}
-			event.preventDefault();
-			session.stopTurn();
-		};
-		window.addEventListener("keydown", onKeyDown);
-		return () => {
-			window.removeEventListener("keydown", onKeyDown);
-		};
-	}, [session, snapshot.hasActiveTurn]);
+	}, [commandPort, keyboardController, keyboardPort, readGate]);
 
 	useEffect(() => {
 		scrollToChatEnd();
@@ -434,11 +397,10 @@ const App = () => {
 						</div>
 						{latestSystem ? (
 							<p
-								className={`m-0 wrap-break-word text-[11px] leading-relaxed ${
-									latestSystem.role === "stderr"
-										? "text-red-300"
-										: "text-neutral-400"
-								}`}
+								className={`m-0 wrap-break-word text-[11px] leading-relaxed ${latestSystem.role === "stderr"
+									? "text-red-300"
+									: "text-neutral-400"
+									}`}
 							>
 								{latestSystem.text}
 							</p>
@@ -541,7 +503,7 @@ const App = () => {
 							<div ref={chatEndRef} className="h-px" />
 						</div>
 					</div>
-					<div className="sticky bottom-0 z-10 shrink-0 bg-gradient-to-t from-black via-black/95 to-transparent px-4 pb-4 pt-2">
+					<div className="sticky bottom-0 z-10 shrink-0 bg-linear-to-t from-black via-black/95 to-transparent px-4 pb-4 pt-2">
 						<div className="mx-auto w-full max-w-3xl">
 							<div className="mb-2 flex flex-wrap items-center gap-2">
 								<AgentSelector

@@ -1,12 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { codeToHtml } from "shiki";
-import type { ExplorationFinding as Finding } from "../codexWire";
-
-export type FileLoadState =
-	| { status: "idle" }
-	| { status: "loading" }
-	| { status: "ready"; content: string; size?: number }
-	| { status: "error"; error: string };
+import type { FileLoadState } from "../../features/agent-session/model/fileLoadState";
+import type { ExplorationFinding as Finding } from "../../integrations/codex/codexWire";
 
 export type ExplorationFindingProps = {
 	finding: Finding;

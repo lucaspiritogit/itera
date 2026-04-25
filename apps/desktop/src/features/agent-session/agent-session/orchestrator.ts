@@ -1,7 +1,7 @@
-import type { CodexTurnContext, RpcHandlerResult } from "../codexWire";
-import type { ReviewDecision } from "../components/ChangeReviewQueue";
-import type { FileLoadState } from "../components/ExplorationFinding";
-import type { ReviewCard } from "../reviewDiff";
+import type { CodexTurnContext, RpcHandlerResult } from "../../../integrations/codex/codexWire";
+import type { ReviewDecision } from "../model/reviewDecision";
+import type { FileLoadState } from "../model/fileLoadState";
+import type { ReviewCard } from "../../../features/review/reviewDiff";
 import type {
 	AgentInboundEnvelope,
 	AgentSessionCommand,

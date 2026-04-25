@@ -1,4 +1,4 @@
-import type { ProcessStep } from "../codexWire";
+import type { ProcessStep } from "../../integrations/codex/codexWire";
 import { AgentDiffReview } from "./AgentDiffReview";
 import type { ReviewDiffStyle } from "./ChangeReviewQueue";
 

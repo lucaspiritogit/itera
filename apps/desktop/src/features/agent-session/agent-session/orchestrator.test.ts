@@ -1,9 +1,9 @@
 import { describe, expect, it } from "vitest";
-import type { RpcHandlerResult } from "../codexWire";
+import type { RpcHandlerResult } from "../../../integrations/codex/codexWire";
 import {
 	compactOverlappingReviewCards,
 	parseReviewCardsFromPatch,
-} from "../reviewDiff";
+} from "../../../features/review/reviewDiff";
 import { createAgentSessionOrchestrator } from "./orchestrator";
 import type {
 	AgentSessionPorts,

@@ -3,10 +3,10 @@ import type {
 	ExplorationFinding,
 	ProcessStep,
 	RpcHandlerResult,
-} from "../codexWire";
-import type { ReviewDecision } from "../components/ChangeReviewQueue";
-import type { FileLoadState } from "../components/ExplorationFinding";
-import type { ReviewCard } from "../reviewDiff";
+} from "../../../integrations/codex/codexWire";
+import type { ReviewDecision } from "../model/reviewDecision";
+import type { FileLoadState } from "../model/fileLoadState";
+import type { ReviewCard } from "../../../features/review/reviewDiff";
 
 export type AgentSessionMode = "exploration" | "editing" | string;
 

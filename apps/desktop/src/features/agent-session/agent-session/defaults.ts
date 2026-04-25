@@ -1,11 +1,11 @@
 import {
 	type ExplorationFinding,
 	handleCodexRpcLine,
-} from "../codexWire";
+} from "../../../integrations/codex/codexWire";
 import {
 	compactOverlappingReviewCards,
 	parseReviewCardsFromPatch,
-} from "../reviewDiff";
+} from "../../../features/review/reviewDiff";
 import type {
 	AgentInboundEnvelope,
 	AgentSessionMode,
