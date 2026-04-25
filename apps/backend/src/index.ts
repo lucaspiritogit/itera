@@ -17,6 +17,10 @@ const HOST = process.env.HOST?.trim() || "127.0.0.1";
 const CODEX_BIN = process.env.CODEX_CLI_PATH?.trim() || "codex";
 const DEFAULT_MODEL = process.env.CODEX_MODEL?.trim() || "gpt-5.4-mini";
 
+type ModelRuntimeSettings = {
+	reasoningEffort?: "none" | "minimal" | "low" | "medium" | "high" | "xhigh";
+};
+
 function killCodexChild(child: ChildProcessWithoutNullStreams): void {
 	if (process.platform === "win32" && child.pid !== undefined) {
 		try {
@@ -177,7 +181,7 @@ class CodexAppServerSession {
 		}
 	}
 
-	async handshake(model: string): Promise<string> {
+	async handshake(model: string, modelSettings: ModelRuntimeSettings): Promise<string> {
 		await this.request("initialize", {
 			clientInfo: {
 				name: "itera_desktop",
@@ -192,6 +196,9 @@ class CodexAppServerSession {
 		const threadResult = await this.request("thread/start", {
 			model,
 			cwd: this.cwd,
+			config: modelSettings.reasoningEffort
+				? { model_reasoning_effort: modelSettings.reasoningEffort }
+				: undefined,
 		});
 		const threadId = readThreadId(threadResult);
 		if (!threadId) {
@@ -202,13 +209,19 @@ class CodexAppServerSession {
 		return threadId;
 	}
 
-	sendTurn(threadId: string, text: string, requestId: number): void {
+	sendTurn(
+		threadId: string,
+		text: string,
+		requestId: number,
+		modelSettings: ModelRuntimeSettings,
+	): void {
 		this.writeLine({
 			id: requestId,
 			method: "turn/start",
 			params: {
 				threadId,
 				input: [{ type: "text", text, text_elements: [] }],
+				effort: modelSettings.reasoningEffort,
 			},
 		});
 	}
@@ -395,6 +408,12 @@ async function attachCodexSession(
 	const cwdParam = connectUrl.searchParams.get("cwd");
 	const cwd = cwdParam && cwdParam.length > 0 ? cwdParam : process.cwd();
 	const model = connectUrl.searchParams.get("model")?.trim() || DEFAULT_MODEL;
+	const modelSettings: ModelRuntimeSettings = {
+		reasoningEffort:
+			(connectUrl.searchParams.get(
+				"reasoningEffort",
+			) as ModelRuntimeSettings["reasoningEffort"] | null) ?? undefined,
+	};
 	const codexHome = process.env.CODEX_HOME?.trim();
 
 	let session: CodexAppServerSession | null = null;
@@ -411,7 +430,7 @@ async function attachCodexSession(
 				ws.send(line);
 			}
 		});
-		threadId = await session.handshake(model);
+		threadId = await session.handshake(model, modelSettings);
 		ws.send(
 			JSON.stringify({
 				backend: { ready: true, threadId, cwd, model },
@@ -464,7 +483,7 @@ async function attachCodexSession(
 		}
 		const id = nextTurnRequestId++;
 		try {
-			session.sendTurn(threadId, parsed.text, id);
+			session.sendTurn(threadId, parsed.text, id, modelSettings);
 		} catch (err) {
 			const message = err instanceof Error ? err.message : String(err);
 			ws.send(JSON.stringify({ backend: { error: message } }));

@@ -91,6 +91,16 @@ function reviewTargetLabel(snapshot: AgentSessionSnapshot): string {
 	return "Selected review item";
 }
 
+function activeReviewCardId(snapshot: AgentSessionSnapshot): string | null {
+	const batch = snapshot.reviewBatch;
+	if (!batch || batch.cards.length === 0) {
+		return null;
+	}
+	const active =
+		batch.cards[Math.min(Math.max(batch.activeIndex, 0), batch.cards.length - 1)];
+	return active?.id ?? null;
+}
+
 function AgentIcon({ iconUrl, label }: { iconUrl: string; label: string }) {
 	return (
 		<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-neutral-800 bg-neutral-100">
@@ -267,12 +277,13 @@ const App = () => {
 		lifecycleController.update({
 			cwd,
 			model: selectedModel,
+			modelSettings: { reasoningEffort: modelThinkingLevels[selectedModel] },
 			reconnectToken: connectNonce,
 		});
 		return () => {
 			lifecycleController.dispose();
 		};
-	}, [connectNonce, cwd, selectedModel, lifecycleController]);
+	}, [connectNonce, cwd, selectedModel, modelThinkingLevels, lifecycleController]);
 
 	useEffect(() => {
 		const stop = keyboardController.start({
@@ -501,8 +512,38 @@ const App = () => {
 											? 1
 											: snapshot.pendingReviewCount
 									}
+									acceptLabel={
+										snapshot.pendingExplorationDecision
+											? "Accept finding"
+											: "Accept change"
+									}
+									denyLabel={
+										snapshot.pendingExplorationDecision
+											? "Dismiss"
+											: "Deny"
+									}
 									active={snapshot.hasActiveTurn}
 									disabled={snapshot.status !== "ready"}
+									onAccept={() => {
+										if (snapshot.pendingExplorationDecision) {
+											session.resolveFinding("approve");
+											return;
+										}
+										const cardId = activeReviewCardId(snapshot);
+										if (cardId) {
+											session.setReviewDecision(cardId, "accepted");
+										}
+									}}
+									onDeny={() => {
+										if (snapshot.pendingExplorationDecision) {
+											session.resolveFinding("dismiss");
+											return;
+										}
+										const cardId = activeReviewCardId(snapshot);
+										if (cardId) {
+											session.setReviewDecision(cardId, "denied");
+										}
+									}}
 									onSubmit={(kind, message) => session.sendReviewText(kind, message)}
 								/>
 							) : (

@@ -1,5 +1,7 @@
 export {};
 
+import type { ModelRuntimeSettings } from "../../features/agent-session/model/modelRuntimeSettings";
+
 declare global {
 	interface Window {
 		desktop?: {
@@ -7,7 +9,11 @@ declare global {
 			platform: string;
 			codex?: {
 				connect(
-					input: { cwd: string; model?: string },
+					input: {
+						cwd: string;
+						model?: string;
+						modelSettings?: ModelRuntimeSettings;
+					},
 					handlers?: {
 						onOpen?: () => void;
 						onMessage?: (raw: string) => void;

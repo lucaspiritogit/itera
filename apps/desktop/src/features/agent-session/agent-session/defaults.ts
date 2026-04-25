@@ -12,6 +12,7 @@ import type {
 	AgentSessionPorts,
 	AgentWireConnection,
 } from "./types";
+import type { AgentModelConnectionInput } from "../model/modelRuntimeSettings";
 
 export const EXPLORATION_PREAMBLE = `You are in EXPLORATION MODE for Itera.
 
@@ -52,6 +53,7 @@ export function buildBackendWsUrl(
 	base: string,
 	cwd: string,
 	model?: string,
+	modelSettings?: AgentModelConnectionInput["modelSettings"],
 ): string {
 	const u = new URL(base);
 	if (cwd.trim().length > 0) {
@@ -59,6 +61,9 @@ export function buildBackendWsUrl(
 	}
 	if (model && model.trim().length > 0) {
 		u.searchParams.set("model", model.trim());
+	}
+	if (modelSettings?.reasoningEffort) {
+		u.searchParams.set("reasoningEffort", modelSettings.reasoningEffort);
 	}
 	return u.toString();
 }
@@ -159,8 +164,10 @@ export function createBrowserWebSocketTransport(
 	baseWsUrl: string,
 ): AgentSessionPorts["transport"] {
 	return {
-		connect({ cwd, model }) {
-			const ws = new WebSocket(buildBackendWsUrl(baseWsUrl, cwd, model));
+		connect({ cwd, model, modelSettings }) {
+			const ws = new WebSocket(
+				buildBackendWsUrl(baseWsUrl, cwd, model, modelSettings),
+			);
 			const connection: AgentWireConnection = {
 				send(raw) {
 					ws.send(raw);

@@ -1,4 +1,9 @@
-export type ModelThinkingLevel = "low" | "medium" | "high";
+import type { ModelReasoningEffort } from "../model/modelRuntimeSettings";
+
+export type ModelThinkingLevel = Extract<
+	ModelReasoningEffort,
+	"low" | "medium" | "high"
+>;
 
 export type ModelId = "gpt-5.4-mini" | "gpt-5.4" | "gpt-5.3-codex";
 

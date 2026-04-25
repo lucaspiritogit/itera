@@ -1,8 +1,10 @@
 import { contextBridge, ipcRenderer } from "electron";
+import type { ModelRuntimeSettings } from "../features/agent-session/model/modelRuntimeSettings";
 
 type CodexConnectInput = {
 	cwd: string;
 	model?: string;
+	modelSettings?: ModelRuntimeSettings;
 };
 
 type CodexEventHandlers = {

@@ -13,8 +13,12 @@ export type ReviewPromptKind = "ask" | "steer";
 export type ReviewPromptInputProps = {
   targetLabel: string;
   pendingCount: number;
+  acceptLabel: string;
+  denyLabel: string;
   active?: boolean;
   disabled?: boolean;
+  onAccept?: () => void;
+  onDeny?: () => void;
   onSubmit?: (kind: ReviewPromptKind, message: string) => void;
 };
 
@@ -97,8 +101,12 @@ export function AgentPromptInput({
 export function ReviewPromptInput({
   targetLabel,
   pendingCount,
+  acceptLabel,
+  denyLabel,
   active = false,
   disabled = false,
+  onAccept,
+  onDeny,
   onSubmit,
 }: ReviewPromptInputProps) {
   const [value, setValue] = useState("");
@@ -136,6 +144,7 @@ export function ReviewPromptInput({
   };
 
   const canSubmit = !disabled && !active && value.trim().length > 0;
+  const canResolve = !disabled && !active;
   const placeholder =
     kind === "ask"
       ? "Ask about the selected review item…"
@@ -166,37 +175,63 @@ export function ReviewPromptInput({
       onSubmit={handleSubmit}
       className={`rounded-2xl border bg-neutral-950 p-2 shadow-xl shadow-black/20 transition focus-within:ring-2 ${modeStyle.form}`}
     >
-      <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1">
-        <div className="flex min-w-0 items-center gap-2">
-          <p className={`m-0 shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${modeStyle.badge}`}>
-            Review
-          </p>
-          <p className="m-0 truncate font-mono text-[11px] text-neutral-300" title={targetLabel}>
-            {targetLabel}
+      <div className="mb-2 flex flex-wrap items-start justify-between gap-2 px-1">
+        <div className="min-w-0">
+          <div className="flex min-w-0 items-center gap-2">
+            <p className={`m-0 shrink-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${modeStyle.badge}`}>
+              Decision required
+            </p>
+            <p className="m-0 truncate font-mono text-[11px] text-neutral-300" title={targetLabel}>
+              {targetLabel}
+            </p>
+          </div>
+          <p className="m-0 mt-1 text-[11px] text-neutral-400">
+            {pendingCount} pending · Ask a question or steer only when the item
+            needs discussion.
           </p>
         </div>
-        <p className="m-0 text-[11px] text-neutral-400">
-          {pendingCount} pending · <span className="font-mono">←/→</span>{" "}
-          cycle · <span className="font-mono">⌘↵</span> accept ·{" "}
-          <span className="font-mono">d</span> deny ·{" "}
+        <div className="flex shrink-0 flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={onAccept}
+            disabled={!canResolve}
+            className="rounded-md border border-emerald-400 bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-white shadow-sm transition enabled:cursor-pointer enabled:hover:bg-emerald-400 disabled:cursor-not-allowed disabled:border-neutral-800 disabled:bg-neutral-900 disabled:text-neutral-600"
+          >
+            {acceptLabel}
+            <span className="ml-2 font-mono text-[10px] opacity-80">⌘↵</span>
+          </button>
+          <button
+            type="button"
+            onClick={onDeny}
+            disabled={!canResolve}
+            className="rounded-md border border-neutral-700 bg-black px-2.5 py-1.5 text-xs font-medium text-neutral-200 transition enabled:cursor-pointer enabled:hover:border-red-400 enabled:hover:text-red-200 disabled:cursor-not-allowed disabled:border-neutral-800 disabled:text-neutral-600"
+          >
+            {denyLabel}
+            <span className="ml-2 font-mono text-[10px] opacity-70">D</span>
+          </button>
+        </div>
+      </div>
+      <div className="mb-2 flex flex-wrap items-center justify-between gap-2 px-1">
+        <div className="flex gap-1">
+          {(["ask", "steer"] as const).map((option) => (
+            <button
+              key={option}
+              type="button"
+              onClick={() => setKind(option)}
+              className={`rounded-md border px-2.5 py-1 text-xs font-medium capitalize ${
+                kind === option
+                  ? modeStyle.activeTab
+                  : "border-neutral-800 bg-black text-neutral-300 enabled:hover:bg-neutral-900"
+              }`}
+            >
+              {option}
+            </button>
+          ))}
+        </div>
+        <p className="m-0 text-[11px] text-neutral-500">
+          <span className="font-mono">←/→</span> cycle ·{" "}
           <span className="font-mono">⇧⇥</span> mode
         </p>
-      </div>
-      <div className="mb-2 flex gap-1 px-1">
-        {(["ask", "steer"] as const).map((option) => (
-          <button
-            key={option}
-            type="button"
-            onClick={() => setKind(option)}
-            className={`rounded-md border px-2.5 py-1 text-xs font-medium capitalize ${
-              kind === option
-                ? modeStyle.activeTab
-                : "border-neutral-800 bg-black text-neutral-300 enabled:hover:bg-neutral-900"
-            }`}
-          >
-            {option}
-          </button>
-        ))}
       </div>
       <div className="relative">
         <textarea

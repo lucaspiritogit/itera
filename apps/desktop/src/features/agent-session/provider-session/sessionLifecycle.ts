@@ -1,11 +1,14 @@
+import type { AgentModelConnectionInput } from "../model/modelRuntimeSettings";
+
 export type SessionLifecycleInput = {
 	cwd: string;
 	model?: string;
+	modelSettings?: AgentModelConnectionInput["modelSettings"];
 	reconnectToken: string | number;
 };
 
 export type SessionLifecyclePort = {
-	connect(input: { cwd: string; model?: string }): void;
+	connect(input: AgentModelConnectionInput): void;
 	disconnect(): void;
 };
 
@@ -15,7 +18,7 @@ export type SessionLifecycleController = {
 };
 
 function lifecycleKey(input: SessionLifecycleInput): string {
-	return `${input.cwd}\u0000${input.model ?? ""}\u0000${String(input.reconnectToken)}`;
+	return `${input.cwd}\u0000${input.model ?? ""}\u0000${input.modelSettings?.reasoningEffort ?? ""}\u0000${String(input.reconnectToken)}`;
 }
 
 export function createSessionLifecycleController(
@@ -42,7 +45,11 @@ export function createSessionLifecycleController(
 			if (connected) {
 				port.disconnect();
 			}
-			port.connect({ cwd: input.cwd, model: input.model });
+			port.connect({
+				cwd: input.cwd,
+				model: input.model,
+				modelSettings: input.modelSettings,
+			});
 			connected = true;
 			previousKey = nextKey;
 		},

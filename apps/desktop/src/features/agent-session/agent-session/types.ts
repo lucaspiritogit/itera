@@ -6,6 +6,7 @@ import type {
 } from "../../../integrations/codex/codexWire";
 import type { ReviewDecision } from "../model/reviewDecision";
 import type { FileLoadState } from "../model/fileLoadState";
+import type { AgentModelConnectionInput } from "../model/modelRuntimeSettings";
 import type { ReviewCard } from "../../../features/review/reviewDiff";
 
 export type AgentSessionMode = "exploration" | "editing" | string;
@@ -88,7 +89,7 @@ export type AgentWireConnection = {
 
 export type AgentSessionPorts = {
 	transport: {
-		connect(input: { cwd: string; model?: string }): AgentWireConnection;
+		connect(input: AgentModelConnectionInput): AgentWireConnection;
 	};
 	wireCodec: {
 		parseInbound(raw: string): AgentInboundEnvelope[];
@@ -120,9 +121,14 @@ export type AgentSessionPorts = {
 };
 
 export type AgentSessionCommand =
-	| { type: "connect"; cwd: string; model?: string }
+	| ({ type: "connect" } & AgentModelConnectionInput)
 	| { type: "disconnect" }
-	| { type: "reconnect"; cwd?: string; model?: string }
+	| {
+			type: "reconnect";
+			cwd?: string;
+			model?: string;
+			modelSettings?: AgentModelConnectionInput["modelSettings"];
+		}
 	| { type: "sendUserText"; text: string; mode?: AgentSessionMode }
 	| { type: "stopTurn" }
 	| { type: "sendRawRpc"; line: string }
@@ -148,9 +154,13 @@ export type AgentSessionOrchestrator = {
 	): () => void;
 	getSnapshot(): AgentSessionSnapshot;
 	dispatch(command: AgentSessionCommand): void;
-	connect(input: { cwd: string; model?: string }): void;
+	connect(input: AgentModelConnectionInput): void;
 	disconnect(): void;
-	reconnect(input?: { cwd?: string; model?: string }): void;
+	reconnect(input?: {
+		cwd?: string;
+		model?: string;
+		modelSettings?: AgentModelConnectionInput["modelSettings"];
+	}): void;
 	sendUserText(
 		text: string,
 		options?: { mode?: AgentSessionMode; metadata?: Record<string, unknown> },

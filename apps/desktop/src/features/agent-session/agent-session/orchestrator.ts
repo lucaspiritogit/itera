@@ -4,6 +4,7 @@ import type {
 } from "../../../integrations/codex/codexWire";
 import type { ReviewDecision } from "../model/reviewDecision";
 import type { FileLoadState } from "../model/fileLoadState";
+import type { AgentModelConnectionInput } from "../model/modelRuntimeSettings";
 import type { ReviewCard } from "../../../features/review/reviewDiff";
 import type {
 	AgentInboundEnvelope,
@@ -167,7 +168,7 @@ export function createAgentSessionOrchestrator({
 	let connection: AgentWireConnection | null = null;
 	let latestUserPrompt: string | null = null;
 	let fileRequestId: string | null = null;
-	let lastConnectInput: { cwd: string; model?: string } | null = null;
+	let lastConnectInput: AgentModelConnectionInput | null = null;
 	const listeners = new Set<
 		(event: AgentSessionEvent, snapshot: AgentSessionSnapshot) => void
 	>();
@@ -429,7 +430,7 @@ export function createAgentSessionOrchestrator({
 		emit({ type: "mode", mode });
 	}
 
-	function connect(input: { cwd: string; model?: string }): void {
+	function connect(input: AgentModelConnectionInput): void {
 		connection?.close();
 		lastConnectInput = input;
 		state = {
@@ -618,6 +619,8 @@ export function createAgentSessionOrchestrator({
 						connect({
 							cwd: command.cwd ?? lastConnectInput.cwd,
 							model: command.model ?? lastConnectInput.model,
+							modelSettings:
+								command.modelSettings ?? lastConnectInput.modelSettings,
 						});
 					}
 					return;
@@ -662,6 +665,8 @@ export function createAgentSessionOrchestrator({
 				connect({
 					cwd: input?.cwd ?? lastConnectInput?.cwd ?? state.cwd,
 					model: input?.model ?? lastConnectInput?.model,
+					modelSettings:
+						input?.modelSettings ?? lastConnectInput?.modelSettings,
 				});
 			}
 		},

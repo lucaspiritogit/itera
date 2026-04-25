@@ -7,6 +7,7 @@ import { promises as fs } from "node:fs";
 import path from "node:path";
 import readline from "node:readline";
 import { ipcMain, type WebContents } from "electron";
+import type { ModelRuntimeSettings } from "../features/agent-session/model/modelRuntimeSettings";
 
 const MAX_FILE_BYTES = 512 * 1024;
 const CODEX_BIN = process.env.CODEX_CLI_PATH?.trim() || "codex";
@@ -27,6 +28,7 @@ type ConnectInput = {
 	id: string;
 	cwd?: string;
 	model?: string;
+	modelSettings?: ModelRuntimeSettings;
 };
 
 function sendToRenderer(
@@ -135,6 +137,7 @@ class CodexStdioSession {
 		private readonly owner: WebContents,
 		private readonly cwd: string,
 		private readonly model: string,
+		private readonly modelSettings: ModelRuntimeSettings,
 		env: NodeJS.ProcessEnv,
 		private readonly onClose: () => void,
 	) {
@@ -174,6 +177,9 @@ class CodexStdioSession {
 		const threadResult = await this.request("thread/start", {
 			model: this.model,
 			cwd: this.cwd,
+			config: this.modelSettings.reasoningEffort
+				? { model_reasoning_effort: this.modelSettings.reasoningEffort }
+				: undefined,
 		});
 		const threadId = readThreadId(threadResult);
 		if (!threadId) {
@@ -300,6 +306,7 @@ class CodexStdioSession {
 			params: {
 				threadId: this.threadId,
 				input: [{ type: "text", text, text_elements: [] }],
+				effort: this.modelSettings.reasoningEffort,
 			},
 		});
 	}
@@ -406,12 +413,14 @@ export function registerCodexStdioIpc(): void {
 		sessions.get(id)?.dispose();
 		const cwd = input.cwd && input.cwd.length > 0 ? input.cwd : process.cwd();
 		const model = input.model?.trim() || DEFAULT_MODEL;
+		const modelSettings = input.modelSettings ?? {};
 		const codexHome = process.env.CODEX_HOME?.trim();
 		const session = new CodexStdioSession(
 			id,
 			event.sender,
 			cwd,
 			model,
+			modelSettings,
 			codexHome ? { CODEX_HOME: codexHome } : {},
 			() => sessions.delete(id),
 		);
