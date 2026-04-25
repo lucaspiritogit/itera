@@ -1,4 +1,7 @@
-import type { CodexTurnContext, RpcHandlerResult } from "../../../integrations/codex/codexWire";
+import type {
+	CodexTurnContext,
+	RpcHandlerResult,
+} from "../../../integrations/codex/codexWire";
 import type { ReviewDecision } from "../model/reviewDecision";
 import type { FileLoadState } from "../model/fileLoadState";
 import type { ReviewCard } from "../../../features/review/reviewDiff";
@@ -19,7 +22,10 @@ import type {
 
 type MutableState = Omit<
 	AgentSessionSnapshot,
-	"canSend" | "pendingReviewCount" | "pendingExplorationDecision" | "pendingReviewDecision"
+	| "canSend"
+	| "pendingReviewCount"
+	| "pendingExplorationDecision"
+	| "pendingReviewDecision"
 >;
 
 function initialState(cwd: string, mode: AgentSessionMode): MutableState {
@@ -76,12 +82,7 @@ function reviewCardSummary(card: ReviewCard): string {
 - Patch:
 ${card.rawPatch.slice(0, 4000)}`;
 	}
-	return `- File: ${card.filePath}
-- Hunks: ${card.hunks.length}
-- Additions: ${card.added}
-- Deletions: ${card.removed}
-- Hunk summaries:
-${card.hunks.map((hunk) => `  - ${hunk.label}: +${hunk.added} / -${hunk.removed}`).join("\n")}`;
+	return `- File: ${card.filePath}`;
 }
 
 function buildReviewPrompt(input: {
@@ -111,7 +112,10 @@ ${input.text}`;
 	if (!batch || batch.cards.length === 0) {
 		return null;
 	}
-	const active = batch.cards[Math.min(Math.max(batch.activeIndex, 0), batch.cards.length - 1)];
+	const active =
+		batch.cards[
+		Math.min(Math.max(batch.activeIndex, 0), batch.cards.length - 1)
+		];
 	if (!active) {
 		return null;
 	}
@@ -135,7 +139,8 @@ ${input.text}`;
 
 function computeSnapshot(state: MutableState): AgentSessionSnapshot {
 	const reviewCount = pendingReviewCount(state.reviewBatch);
-	const pendingExplorationDecision = Boolean(state.finding) && !state.findingResolved;
+	const pendingExplorationDecision =
+		Boolean(state.finding) && !state.findingResolved;
 	const pendingReviewDecision = reviewCount > 0;
 	return {
 		...state,
@@ -447,7 +452,7 @@ export function createAgentSessionOrchestrator({
 			setStatus("error");
 			pushSystem({
 				role: "stderr",
-				text: "WebSocket error (is the backend running?).",
+				text: "Codex transport error.",
 			});
 		});
 		connection.onClose(() => {
@@ -480,7 +485,10 @@ export function createAgentSessionOrchestrator({
 			text,
 		});
 		const mode = options?.mode ?? "exploration";
-		const prompt = ports.promptPolicy.buildInitialPrompt({ mode, userText: text });
+		const prompt = ports.promptPolicy.buildInitialPrompt({
+			mode,
+			userText: text,
+		});
 		if (mode !== state.mode) {
 			setMode(mode);
 		}

@@ -133,45 +133,17 @@ export function ChangeReviewQueue({
 						This change is {selectedDecision}.
 					</p>
 				) : selected.kind === "file" ? (
-					<>
-						<div className="grid gap-2 sm:grid-cols-3">
-							<p className="m-0 rounded-md border border-neutral-800 bg-black px-2 py-1 text-xs text-neutral-300">
-								Hunks: {selected.hunks.length}
-							</p>
-							<p className="m-0 rounded-md border border-neutral-800 bg-black px-2 py-1 text-xs text-emerald-300">
-								+{selected.added} additions
-							</p>
-							<p className="m-0 rounded-md border border-neutral-800 bg-black px-2 py-1 text-xs text-red-300">
-								-{selected.removed} deletions
-							</p>
-						</div>
-						<div className="grid gap-2">
-							{selected.hunks.map((hunk) => (
-								<div
-									key={hunk.id}
-									className="rounded-md border border-neutral-800 bg-black px-2 py-1.5"
-								>
-									<p className="m-0 break-all font-mono text-[11px] text-neutral-200">
-										{hunk.label}
-									</p>
-									<p className="m-0 mt-0.5 text-[11px] text-neutral-400">
-										+{hunk.added} / -{hunk.removed}
-									</p>
-								</div>
-							))}
-						</div>
-						<WorkerPoolContextProvider
-							poolOptions={poolOptions}
-							highlighterOptions={highlighterOptions}
-						>
-							<FileDiff
-								fileDiff={selected.fileDiff}
-								options={{ ...DIFF_OPTIONS, diffStyle }}
-								className="w-full max-w-full rounded-xl border border-neutral-800"
-								style={{ minHeight: "8rem" }}
-							/>
-						</WorkerPoolContextProvider>
-					</>
+					<WorkerPoolContextProvider
+						poolOptions={poolOptions}
+						highlighterOptions={highlighterOptions}
+					>
+						<FileDiff
+							fileDiff={selected.fileDiff}
+							options={{ ...DIFF_OPTIONS, diffStyle }}
+							className="w-full max-w-full rounded-xl border border-neutral-800"
+							style={{ minHeight: "8rem" }}
+						/>
+					</WorkerPoolContextProvider>
 				) : (
 					<pre className="max-h-[min(30rem,55vh)] overflow-auto rounded-lg border border-neutral-800 bg-black p-3 font-mono text-xs leading-relaxed text-neutral-200">
 						{selected.rawPatch}

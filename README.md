@@ -2,7 +2,7 @@
 
 Itera is a review-first desktop harness for agentic coding. It keeps the developer in the loop by splitting work into an exploration phase, a finding review, an implementation phase, and a per-change review.
 
-The current app is an Electron + React desktop client backed by a local Node WebSocket server. The backend spawns the `codex app-server` CLI for each session and forwards normalized events to the renderer.
+The current app is an Electron + React desktop client. The Electron main process spawns the `codex app-server` CLI for each session over stdio and forwards normalized events to the renderer through a narrow IPC bridge.
 
 ## Status
 
@@ -12,8 +12,7 @@ The provider layer is currently Codex-specific. The intended direction is an age
 
 ## Safety Model
 
-- The backend binds to `127.0.0.1` by default.
-- A project must be selected before the desktop app connects to the backend.
+- A project must be selected before the desktop app starts a Codex stdio session.
 - File reads requested by the renderer are constrained to the selected workspace root.
 - User prompts start in exploration mode by default. Editing only begins after the developer approves the exploration finding.
 - File-change reviews stay pending until the selected change is accepted or denied.
@@ -42,14 +41,11 @@ explore -> review finding -> implement -> review change
 
 Copy `.env.example` to `.env` for local overrides if needed.
 
-| Variable                | Default        | Purpose                                                         |
-| ----------------------- | -------------- | --------------------------------------------------------------- |
-| `HOST`                  | `127.0.0.1`    | Backend bind address                                            |
-| `PORT`                  | `3847`         | Backend WebSocket port                                          |
-| `CODEX_CLI_PATH`        | `codex`        | CLI binary used by the backend                                  |
-| `CODEX_MODEL`           | `gpt-5.4-mini` | Default model passed to `codex app-server`                      |
-| `CODEX_HOME`            | unset          | Optional Codex home directory passed through to the CLI         |
-| `VITE_CODEX_BACKEND_WS` | app config     | Renderer WebSocket URL, for example `ws://127.0.0.1:3847/codex` |
+| Variable         | Default        | Purpose                                                 |
+| ---------------- | -------------- | ------------------------------------------------------- |
+| `CODEX_CLI_PATH` | `codex`        | CLI binary used by the Electron main process            |
+| `CODEX_MODEL`    | `gpt-5.4-mini` | Default model passed to `codex app-server`              |
+| `CODEX_HOME`     | unset          | Optional Codex home directory passed through to the CLI |
 
 ## Scripts
 
@@ -64,8 +60,8 @@ npm run audit
 ## Repository Layout
 
 ```text
-apps/backend   local WebSocket bridge to codex app-server
-apps/desktop   Electron, React UI, review orchestration, diff rendering
+apps/backend   legacy local WebSocket bridge to codex app-server
+apps/desktop   Electron stdio host, React UI, review orchestration, diff rendering
 ```
 
 ## Security And Dependency Notes

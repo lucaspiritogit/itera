@@ -45,10 +45,11 @@ describe("review diff cards", () => {
 
 		expect(cards).toHaveLength(1);
 		expect(cards[0].filePath).toBe("src/random-change.ts");
-		expect(cards[0].hunks).toHaveLength(1);
-		expect(cards[0].hunks[0].label).toContain("@@ -59,4 +59,4 @@");
-		expect(cards[0].added).toBe(1);
-		expect(cards[0].removed).toBe(1);
+		expect(cards[0].kind).toBe("file");
+		if (cards[0].kind === "file") {
+			expect(cards[0].fileDiff.hunks).toHaveLength(1);
+			expect(cards[0].fileDiff.hunks[0].deletionStart).toBe(59);
+		}
 	});
 
 	it("keeps separate review cards when changes touch different lines in the same file", () => {
@@ -62,9 +63,9 @@ describe("review diff cards", () => {
 			"src/random-change.ts",
 			"src/random-change.ts",
 		]);
-		expect(cards.map((card) => card.hunks[0].label.trim())).toEqual([
-			"@@ -59,4 +59,4 @@",
-			"@@ -120,3 +120,4 @@",
+		const fileCards = cards.filter((c) => c.kind === "file");
+		expect(fileCards.map((c) => c.fileDiff.hunks[0].deletionStart)).toEqual([
+			59, 120,
 		]);
 	});
 });

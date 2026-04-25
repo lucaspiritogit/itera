@@ -19,10 +19,5 @@ export default defineConfig(async () => {
         ),
       },
     },
-    define: {
-      'import.meta.env.VITE_CODEX_BACKEND_WS': JSON.stringify(
-        process.env.VITE_CODEX_BACKEND_WS ?? 'ws://127.0.0.1:3847/codex',
-      ),
-    },
   };
 });

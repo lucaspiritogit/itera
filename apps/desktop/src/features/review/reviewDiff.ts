@@ -2,31 +2,18 @@
 import { parsePatchFiles } from "@pierre/diffs";
 import type { FileDiffMetadata } from "@pierre/diffs/react";
 
-export type ReviewHunkSummary = {
-	id: string;
-	label: string;
-	added: number;
-	removed: number;
-};
-
 export type ReviewCard =
 	| {
 			id: string;
 			kind: "file";
 			filePath: string;
 			fileDiff: FileDiffMetadata;
-			hunks: ReviewHunkSummary[];
-			added: number;
-			removed: number;
 		}
 	| {
 			id: string;
 			kind: "raw";
 			filePath: "Raw patch";
 			rawPatch: string;
-			hunks: [];
-			added: 0;
-			removed: 0;
 		};
 
 type ReviewLineRange = {
@@ -46,15 +33,12 @@ function patchMetadataLineBoundsValid(f: FileDiffMetadata): boolean {
 }
 
 function asRawCard(patch: string, cacheKeyPrefix: string): ReviewCard[] {
-	return [
+		return [
 		{
 			id: `${cacheKeyPrefix}-raw`,
 			kind: "raw",
 			filePath: "Raw patch",
 			rawPatch: patch,
-			hunks: [],
-			added: 0,
-			removed: 0,
 		},
 	];
 }
@@ -135,30 +119,14 @@ export function parseReviewCardsFromPatch(
 		if (files.some((f) => !patchMetadataLineBoundsValid(f))) {
 			return asRawCard(trimmed, cacheKeyPrefix);
 		}
-		return compactOverlappingReviewCards(files.map((f, i) => {
-			const added = f.hunks.reduce((sum, h) => sum + h.additionLines, 0);
-			const removed = f.hunks.reduce((sum, h) => sum + h.deletionLines, 0);
-			const hunks = f.hunks.map((h, hi) => {
-				const base =
-					h.hunkSpecs ??
-					`@@ -${h.deletionStart},${h.deletionCount} +${h.additionStart},${h.additionCount} @@`;
-				return {
-					id: `${f.cacheKey ?? f.name}-${hi}`,
-					label: base,
-					added: h.additionLines,
-					removed: h.deletionLines,
-				};
-			});
-			return {
+		return compactOverlappingReviewCards(
+			files.map((f, i) => ({
 				id: f.cacheKey ?? `${cacheKeyPrefix}-${f.name}-${i}`,
 				kind: "file" as const,
 				filePath: f.name,
 				fileDiff: f,
-				hunks,
-				added,
-				removed,
-			};
-		}));
+			})),
+		);
 	} catch {
 		return asRawCard(trimmed, cacheKeyPrefix);
 	}

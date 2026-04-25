@@ -187,11 +187,75 @@ export function createBrowserWebSocketTransport(
 	};
 }
 
+export function createElectronStdioTransport(): AgentSessionPorts["transport"] {
+	return {
+		connect(input) {
+			const bridge = window.desktop?.codex;
+			let sessionId: string | null = null;
+			let openHandler: (() => void) | null = null;
+			let messageHandler: ((raw: string) => void) | null = null;
+			let errorHandler: ((error?: unknown) => void) | null = null;
+			let closeHandler: (() => void) | null = null;
+			const connection: AgentWireConnection = {
+				send(raw) {
+					if (!sessionId || !bridge) {
+						throw new Error("Codex stdio transport is not connected.");
+					}
+					bridge.send(sessionId, raw);
+				},
+				close() {
+					if (sessionId && bridge) {
+						bridge.close(sessionId);
+					}
+				},
+				onOpen(cb) {
+					openHandler = cb;
+				},
+				onMessage(cb) {
+					messageHandler = cb;
+				},
+				onError(cb) {
+					errorHandler = cb;
+				},
+				onClose(cb) {
+					closeHandler = cb;
+				},
+			};
+			if (!bridge) {
+				queueMicrotask(() =>
+					errorHandler?.("Codex stdio bridge is unavailable in this runtime."),
+				);
+				return connection;
+			}
+			sessionId = bridge.connect(input, {
+				onOpen() {
+					openHandler?.();
+				},
+				onMessage(raw) {
+					messageHandler?.(raw);
+				},
+				onError(error) {
+					errorHandler?.(error);
+				},
+				onClose() {
+					closeHandler?.();
+				},
+			});
+			return connection;
+		},
+	};
+}
+
 export function createDefaultAgentSessionPorts(
-	baseWsUrl: string,
+	baseWsUrl?: string,
 ): AgentSessionPorts {
 	return {
-		transport: createBrowserWebSocketTransport(baseWsUrl),
+		transport:
+			typeof window !== "undefined" && window.desktop?.codex
+				? createElectronStdioTransport()
+				: createBrowserWebSocketTransport(
+						baseWsUrl ?? "ws://127.0.0.1:3847/codex",
+					),
 		wireCodec: createBackendWireCodec(),
 		rpcReducer: {
 			apply: handleCodexRpcLine,

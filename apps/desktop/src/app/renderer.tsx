@@ -22,11 +22,20 @@ import {
 	type ReviewDiffStyle,
 } from "../ui/components/ChangeReviewQueue";
 import { ExplorationFinding } from "../ui/components/ExplorationFinding";
+import { ModelSelector } from "../ui/components/ModelSelector";
+import { ThinkingLevelSelector } from "../ui/components/ThinkingLevelSelector";
+import {
+	buildModelThinkingLevelDefaults,
+	DEFAULT_MODEL,
+	MODEL_OPTIONS,
+	type ModelId,
+	type ModelThinkingLevel,
+	THINKING_LEVEL_OPTIONS,
+} from "../features/agent-session/agent-session/model-options";
 import "../shared/styles/index.css";
 
 const DEFAULT_CWD = "";
-const DEFAULT_MODEL = "gpt-5.4-mini";
-const CODEX_ICON_URL = new URL("../assets/codex.svg", import.meta.url).href;
+const CODEX_ICON_URL = new URL("../assets/Codex_light.svg", import.meta.url).href;
 
 const AGENT_OPTIONS = [
 	{
@@ -36,14 +45,7 @@ const AGENT_OPTIONS = [
 	},
 ] as const;
 
-const MODEL_OPTIONS = [
-	{ id: "gpt-5.4-mini", label: "GPT-5.4 Mini" },
-	{ id: "gpt-5.4", label: "GPT-5.4" },
-	{ id: "gpt-5.3-codex", label: "GPT-5.3 Codex" },
-] as const;
-
 type AgentId = (typeof AGENT_OPTIONS)[number]["id"];
-type ModelId = (typeof MODEL_OPTIONS)[number]["id"];
 
 function isEditableTarget(target: EventTarget | null): boolean {
 	if (!(target instanceof HTMLElement)) {
@@ -154,81 +156,22 @@ function AgentSelector({
 	);
 }
 
-function ModelSelector({
-	value,
-	disabled,
-	onChange,
-}: {
-	value: ModelId;
-	disabled: boolean;
-	onChange: (value: ModelId) => void;
-}) {
-	const [open, setOpen] = useState(false);
-	const selected =
-		MODEL_OPTIONS.find((option) => option.id === value) ?? MODEL_OPTIONS[0];
-
-	return (
-		<div className="relative min-w-0">
-			<button
-				type="button"
-				onClick={() => setOpen((current) => !current)}
-				disabled={disabled}
-				aria-haspopup="listbox"
-				aria-expanded={open}
-				className="flex h-9 min-w-44 items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 px-2.5 text-xs text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-cyan-400 disabled:opacity-60"
-			>
-				<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-cyan-400/40 bg-cyan-400/10 text-[10px] text-cyan-100">
-					M
-				</span>
-				<span className="truncate">{selected.label}</span>
-				<span className="ml-auto text-neutral-500" aria-hidden>
-					^
-				</span>
-			</button>
-			{open ? (
-				<div
-					role="listbox"
-					className="absolute bottom-full left-0 z-20 mb-1 w-full min-w-52 rounded-md border border-neutral-800 bg-black p-1 shadow-xl shadow-black/40"
-				>
-					{MODEL_OPTIONS.map((option) => (
-						<button
-							key={option.id}
-							type="button"
-							role="option"
-							aria-selected={option.id === value}
-							onClick={() => {
-								onChange(option.id);
-								setOpen(false);
-							}}
-							className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs enabled:cursor-pointer enabled:hover:bg-neutral-900 ${option.id === value ? "text-cyan-100" : "text-neutral-300"
-								}`}
-						>
-							<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-cyan-400/40 bg-cyan-400/10 text-[10px] text-cyan-100">
-								M
-							</span>
-							<span>{option.label}</span>
-						</button>
-					))}
-				</div>
-			) : null}
-		</div>
-	);
-}
-
 const App = () => {
 	const [cwd, setCwd] = useState(DEFAULT_CWD);
 	const [selectedAgent, setSelectedAgent] = useState<AgentId>("codex");
 	const [selectedModel, setSelectedModel] = useState<ModelId>(DEFAULT_MODEL);
+	const [modelThinkingLevels, setModelThinkingLevels] = useState(() =>
+		buildModelThinkingLevelDefaults(),
+	);
 	const [connectNonce, setConnectNonce] = useState(0);
+	const [folderPickerError, setFolderPickerError] = useState<string | null>(null);
 	const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
 	const [reviewDiffStyle, setReviewDiffStyle] =
 		useState<ReviewDiffStyle>("unified");
 	const session = useMemo(
 		() =>
 			createAgentSessionOrchestrator({
-				ports: createDefaultAgentSessionPorts(
-					import.meta.env.VITE_CODEX_BACKEND_WS,
-				),
+				ports: createDefaultAgentSessionPorts(),
 				initial: { cwd: DEFAULT_CWD, mode: "exploration" },
 			}),
 		[],
@@ -290,11 +233,28 @@ const App = () => {
 	}, []);
 
 	const openProjectFolder = useCallback(async () => {
-		const selected = await window.desktop?.openProjectFolder?.();
+		const openFolder = window.desktop?.openProjectFolder;
+		if (!openFolder) {
+			setFolderPickerError("Folder picker is unavailable in this runtime.");
+			return;
+		}
+		setFolderPickerError(null);
+		let selected: string | null;
+		try {
+			selected = await openFolder();
+		} catch (error) {
+			setFolderPickerError(
+				error instanceof Error
+					? error.message
+					: "Folder picker failed to open.",
+			);
+			return;
+		}
 		if (!selected) {
 			return;
 		}
 		setCwd(selected);
+		setConnectNonce((n) => n + 1);
 	}, []);
 
 	useEffect(() => {
@@ -332,6 +292,7 @@ const App = () => {
 	const latestSystem = snapshot.systemMessages[snapshot.systemMessages.length - 1];
 	const isReviewing =
 		snapshot.pendingExplorationDecision || snapshot.pendingReviewDecision;
+	const selectedThinkingLevel = modelThinkingLevels[selectedModel];
 
 	return (
 		<main className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden">
@@ -394,6 +355,9 @@ const App = () => {
 							>
 								Open folder
 							</button>
+							{folderPickerError ? (
+								<p className="m-0 text-xs text-red-300">{folderPickerError}</p>
+							) : null}
 						</div>
 						{latestSystem ? (
 							<p
@@ -511,8 +475,20 @@ const App = () => {
 									disabled={snapshot.status === "connecting" || snapshot.hasActiveTurn}
 									onChange={setSelectedAgent}
 								/>
+								<ThinkingLevelSelector
+									value={selectedThinkingLevel}
+									options={THINKING_LEVEL_OPTIONS}
+									disabled={snapshot.status === "connecting" || snapshot.hasActiveTurn}
+									onChange={(thinkingLevel: ModelThinkingLevel) => {
+										setModelThinkingLevels((current) => ({
+											...current,
+											[selectedModel]: thinkingLevel,
+										}));
+									}}
+								/>
 								<ModelSelector
 									value={selectedModel}
+									options={MODEL_OPTIONS}
 									disabled={snapshot.status === "connecting" || snapshot.hasActiveTurn}
 									onChange={setSelectedModel}
 								/>
