@@ -387,13 +387,7 @@ const App = () => {
 					</div>
 				) : (
 					<aside className="flex min-h-0 w-[min(100%,18rem)] shrink-0 flex-col gap-3 overflow-hidden bg-black pr-3">
-						<div className="flex items-center justify-between">
-							<span
-								className="flex h-8 w-8 items-center justify-center text-lg text-cyan-200"
-								aria-hidden
-							>
-								›
-							</span>
+						<div className="flex items-center justify-end">
 							<button
 								type="button"
 								onClick={() => setIsSidebarCollapsed(true)}

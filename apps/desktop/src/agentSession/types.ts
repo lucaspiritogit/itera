@@ -128,10 +128,10 @@ export type AgentSessionCommand =
 	| { type: "sendRawRpc"; line: string }
 	| { type: "requestFile"; path: string }
 	| {
-			type: "resolveFinding";
-			action: "approve" | "dismiss" | "edit";
-			prompt?: string;
-		}
+		type: "resolveFinding";
+		action: "approve" | "dismiss" | "edit";
+		prompt?: string;
+	}
 	| { type: "sendReviewText"; kind: ReviewPromptKind; text: string }
 	| { type: "setReviewDecision"; cardId: string; decision: ReviewDecision }
 	| { type: "moveReviewCursor"; delta: number }
