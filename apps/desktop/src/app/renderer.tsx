@@ -131,7 +131,7 @@ function AgentSelector({
 				disabled={disabled}
 				aria-haspopup="listbox"
 				aria-expanded={open}
-				className="flex h-9 min-w-32 items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 px-2.5 text-xs text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-cyan-400 disabled:opacity-60"
+				className="flex h-9 min-w-32 items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 px-2.5 text-xs text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-sky-500/70 disabled:opacity-60"
 			>
 				<AgentIcon iconUrl={selected.iconUrl} label={selected.label} />
 				<span className="truncate">{selected.label}</span>
@@ -304,6 +304,12 @@ const App = () => {
 	const isReviewing =
 		snapshot.pendingExplorationDecision || snapshot.pendingReviewDecision;
 	const selectedThinkingLevel = modelThinkingLevels[selectedModel];
+	const reviewItemCount = snapshot.pendingExplorationDecision
+		? 1
+		: snapshot.reviewBatch?.cards.length ?? 1;
+	const reviewCurrentIndex = snapshot.pendingExplorationDecision
+		? 0
+		: snapshot.reviewBatch?.activeIndex ?? 0;
 
 	return (
 		<main className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden">
@@ -315,7 +321,7 @@ const App = () => {
 							onClick={() => setIsSidebarCollapsed(false)}
 							aria-label="Open session sidebar"
 							title="Open session sidebar"
-							className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-950 text-sm font-medium text-cyan-200 enabled:cursor-pointer enabled:hover:border-cyan-400 enabled:hover:bg-neutral-900"
+							className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-950 text-sm font-medium text-sky-200 enabled:cursor-pointer enabled:hover:border-sky-500/70 enabled:hover:bg-neutral-900"
 						>
 							›
 						</button>
@@ -328,7 +334,7 @@ const App = () => {
 								onClick={() => setIsSidebarCollapsed(true)}
 								aria-label="Close session sidebar"
 								title="Close session sidebar"
-								className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-950 text-sm text-cyan-200 enabled:cursor-pointer enabled:hover:border-cyan-400 enabled:hover:bg-neutral-900"
+								className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-950 text-sm text-sky-200 enabled:cursor-pointer enabled:hover:border-sky-500/70 enabled:hover:bg-neutral-900"
 							>
 								‹
 							</button>
@@ -347,7 +353,7 @@ const App = () => {
 									onChange={(e) => setCwd(e.target.value)}
 									disabled={snapshot.status === "connecting"}
 									placeholder="Optional ?cwd="
-									className="rounded-md border border-neutral-800 bg-neutral-950 px-2 py-1.5 font-[inherit] text-xs text-neutral-100 outline-none placeholder:text-neutral-600 focus:border-cyan-400 disabled:opacity-60"
+									className="rounded-md border border-neutral-800 bg-neutral-950 px-2 py-1.5 font-mono text-xs text-neutral-100 outline-none placeholder:text-neutral-600 focus:border-sky-500/70 disabled:opacity-60"
 								/>
 							</label>
 							<button
@@ -362,7 +368,7 @@ const App = () => {
 								type="button"
 								onClick={openProjectFolder}
 								disabled={snapshot.status === "connecting"}
-								className="self-start rounded-md border border-cyan-400/70 bg-cyan-400/10 px-3 py-1 text-xs font-medium text-cyan-100 enabled:cursor-pointer enabled:hover:bg-cyan-400/20 disabled:opacity-50"
+								className="self-start rounded-md border border-sky-500/50 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-100 enabled:cursor-pointer enabled:hover:bg-sky-500/15 disabled:opacity-50"
 							>
 								Open folder
 							</button>
@@ -389,7 +395,7 @@ const App = () => {
 								if (item.type === "user") {
 									return (
 										<div key={item.id} className="flex w-full justify-end">
-											<div className="max-w-[min(85%,42rem)] rounded-2xl rounded-br-md border border-cyan-400/60 bg-cyan-400/10 px-4 py-3 text-sm leading-relaxed text-cyan-50 shadow-lg shadow-black/20">
+											<div className="max-w-[min(85%,42rem)] rounded-2xl rounded-br-md border border-sky-500/40 bg-sky-500/10 px-4 py-3 text-sm leading-relaxed text-sky-50 shadow-lg shadow-black/20">
 												{item.text}
 											</div>
 										</div>
@@ -429,26 +435,26 @@ const App = () => {
 							})}
 
 							{snapshot.pendingExplorationDecision && !snapshot.hasActiveTurn ? (
-								<div className="mx-auto flex w-full max-w-5xl items-start gap-2 rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-3 py-2">
+								<div className="mx-auto flex w-full max-w-5xl items-start gap-3 rounded-lg border border-amber-400/60 bg-amber-400/10 px-3 py-2 shadow-lg shadow-amber-950/20">
 									<span
-										className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300"
+										className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-amber-300 shadow-[0_0_0_3px_rgba(251,191,36,0.14)]"
 										aria-hidden
 									/>
 									<div className="min-w-0 flex-1">
-										<p className="m-0 text-xs font-medium text-cyan-100">
+										<p className="m-0 text-xs font-semibold text-amber-100">
 											Decision required: review this exploration finding before continuing.
 										</p>
 									</div>
 								</div>
 							) : null}
 							{snapshot.pendingReviewDecision && !snapshot.hasActiveTurn ? (
-								<div className="mx-auto flex w-full max-w-5xl items-start gap-2 rounded-lg border border-cyan-400/40 bg-cyan-400/10 px-3 py-2">
+								<div className="mx-auto flex w-full max-w-5xl items-start gap-3 rounded-lg border border-amber-400/60 bg-amber-400/10 px-3 py-2 shadow-lg shadow-amber-950/20">
 									<span
-										className="mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-cyan-300"
+										className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-amber-300 shadow-[0_0_0_3px_rgba(251,191,36,0.14)]"
 										aria-hidden
 									/>
 									<div className="min-w-0 flex-1">
-										<p className="m-0 text-xs font-medium text-cyan-100">
+										<p className="m-0 text-xs font-semibold text-amber-100">
 											Decision required: review this change batch before continuing.
 										</p>
 									</div>
@@ -460,7 +466,7 @@ const App = () => {
 									aria-live="polite"
 								>
 									<span
-										className="mt-1 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-cyan-300"
+										className="mt-1 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-sky-300"
 										aria-hidden
 									/>
 									<div className="min-w-0 flex-1">
@@ -478,9 +484,9 @@ const App = () => {
 							<div ref={chatEndRef} className="h-px" />
 						</div>
 					</div>
-					<div className="sticky bottom-0 z-10 shrink-0 bg-linear-to-t from-black via-black/95 to-transparent px-4 pb-4 pt-2">
-						<div className="mx-auto w-full max-w-3xl">
-							<div className="mb-2 flex flex-wrap items-center gap-2">
+					<div className="sticky bottom-0 z-10 shrink-0 bg-linear-to-t from-neutral-950 via-neutral-950/95 to-transparent px-4 pb-4 pt-4">
+						<div className="mx-auto flex w-full max-w-4xl flex-col gap-3">
+							<div className="flex flex-wrap items-center justify-end gap-2">
 								<AgentSelector
 									value={selectedAgent}
 									disabled={snapshot.status === "connecting" || snapshot.hasActiveTurn}
@@ -507,6 +513,8 @@ const App = () => {
 							{isReviewing ? (
 								<ReviewPromptInput
 									targetLabel={reviewTargetLabel(snapshot)}
+									itemCount={reviewItemCount}
+									currentIndex={reviewCurrentIndex}
 									pendingCount={
 										snapshot.pendingExplorationDecision
 											? 1
@@ -542,6 +550,11 @@ const App = () => {
 										const cardId = activeReviewCardId(snapshot);
 										if (cardId) {
 											session.setReviewDecision(cardId, "denied");
+										}
+									}}
+									onNavigate={(direction) => {
+										if (snapshot.pendingReviewDecision) {
+											session.moveReviewCursor(direction === "prev" ? -1 : 1);
 										}
 									}}
 									onSubmit={(kind, message) => session.sendReviewText(kind, message)}

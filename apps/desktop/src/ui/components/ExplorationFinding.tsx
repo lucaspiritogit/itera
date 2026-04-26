@@ -24,10 +24,10 @@ export function ExplorationFinding({
 	}, [finding.code, finding.file, isResolved]);
 
 	return (
-		<article className="flex w-full max-w-5xl flex-col gap-0 overflow-hidden rounded-2xl border border-neutral-800 bg-black shadow-xl shadow-black/20">
+		<article className="flex w-full max-w-5xl flex-col gap-0 overflow-hidden rounded-xl border border-neutral-700/80 bg-neutral-900 shadow-2xl shadow-black/30">
 			<header className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-950 px-4 py-3">
 				<div className="min-w-0 flex-1">
-					<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-cyan-300">
+					<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-sky-300">
 						Exploration finding
 					</p>
 					<p
@@ -46,7 +46,7 @@ export function ExplorationFinding({
 							Reviewed
 						</p>
 					) : (
-						<p className="m-0 rounded-full border border-cyan-400/40 bg-cyan-400/10 px-2 py-0.5 text-[11px] font-medium text-cyan-200">
+						<p className="m-0 rounded-full border border-amber-400/60 bg-amber-400/15 px-2.5 py-1 text-[11px] font-semibold text-amber-100">
 							Decision required
 						</p>
 					)}
@@ -55,8 +55,8 @@ export function ExplorationFinding({
 
 			{isCollapsed ? null : (
 				<>
-					<section className="border-b border-neutral-800 bg-cyan-400/5 px-4 py-3">
-						<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-cyan-200">
+					<section className="border-b border-neutral-800 bg-neutral-950/70 px-4 py-3">
+						<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-sky-200">
 							What the agent found
 						</p>
 						<p className="m-0 mt-1 whitespace-pre-wrap text-sm leading-relaxed text-neutral-100">
@@ -79,7 +79,7 @@ export function ExplorationFinding({
 					aria-expanded={!isCollapsed}
 					aria-label={toggleLabel}
 					title={toggleLabel}
-					className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-800 bg-black text-neutral-200 enabled:cursor-pointer enabled:hover:border-cyan-400 enabled:hover:text-cyan-200"
+					className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-800 bg-black text-neutral-200 enabled:cursor-pointer enabled:hover:border-sky-500/70 enabled:hover:text-sky-200"
 				>
 					<CollapseToggleIcon collapsed={isCollapsed} />
 				</button>

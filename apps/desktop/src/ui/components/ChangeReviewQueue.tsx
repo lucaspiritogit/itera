@@ -31,7 +31,7 @@ function decisionPillClass(decision: ReviewDecision): string {
 	if (decision === "denied") {
 		return "border-red-500/40 bg-red-500/10 text-red-200";
 	}
-	return "border-cyan-400/40 bg-cyan-400/10 text-cyan-200";
+	return "border-amber-400/60 bg-amber-400/15 text-amber-100";
 }
 
 export function ChangeReviewQueue({
@@ -68,13 +68,13 @@ export function ChangeReviewQueue({
 	const selectedDecision = decisions[selected.id] ?? "pending";
 
 	return (
-		<article className="flex w-full max-w-5xl flex-col gap-4 rounded-2xl border border-neutral-800 bg-black px-4 py-4 shadow-xl shadow-black/20">
+		<article className="flex w-full max-w-5xl flex-col gap-4 rounded-xl border border-neutral-700/80 bg-neutral-900 px-4 py-4 shadow-2xl shadow-black/30">
 			<header className="flex flex-wrap items-start justify-between gap-2">
 				<div>
-					<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-cyan-300">
+					<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
 						Review required
 					</p>
-					<p className="m-0 mt-0.5 text-sm text-neutral-100">
+					<p className="m-0 mt-0.5 text-base font-semibold text-neutral-100">
 						{cards.length} file changes pending decision
 					</p>
 					<p className="m-0 mt-1 text-[11px] text-neutral-400">
@@ -85,7 +85,7 @@ export function ChangeReviewQueue({
 					</p>
 				</div>
 				<p
-					className={`m-0 rounded-full border px-2 py-0.5 text-[11px] font-medium ${decisionPillClass(
+					className={`m-0 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${decisionPillClass(
 						selectedDecision,
 					)}`}
 				>
@@ -102,10 +102,10 @@ export function ChangeReviewQueue({
 							key={card.id}
 							type="button"
 							onClick={() => onSelect(i)}
-								className={`rounded-md border px-2.5 py-1 text-left text-xs ${
+							className={`rounded-md border px-2.5 py-1 text-left text-xs transition ${
 								isActive
-									? "border-cyan-400 bg-cyan-400/15 text-cyan-100"
-									: "border-neutral-800 bg-neutral-950 text-neutral-300 hover:bg-neutral-900"
+									? "border-sky-500/70 bg-sky-500/10 text-sky-100"
+									: "border-neutral-800 bg-neutral-950 text-neutral-300 hover:border-neutral-700 hover:bg-neutral-900"
 							}`}
 							title={card.filePath}
 						>
@@ -116,7 +116,7 @@ export function ChangeReviewQueue({
 				})}
 			</div>
 
-			<section className="flex flex-col gap-3 rounded-xl border border-neutral-800 bg-neutral-950/70 p-3">
+			<section className="flex flex-col gap-3 rounded-lg border border-neutral-700/70 bg-neutral-950 p-3 shadow-inner shadow-black/20">
 				<div className="flex flex-wrap items-center justify-between gap-2">
 					<div>
 						<p className="m-0 text-[10px] font-semibold uppercase tracking-wide text-neutral-400">
@@ -129,7 +129,7 @@ export function ChangeReviewQueue({
 				</div>
 
 				{selectedDecision !== "pending" ? (
-					<p className="m-0 rounded-md border border-neutral-800 bg-black px-3 py-2 text-xs text-neutral-300">
+					<p className="m-0 rounded-md border border-neutral-800 bg-neutral-950 px-3 py-2 text-xs text-neutral-300">
 						This change is {selectedDecision}.
 					</p>
 				) : selected.kind === "file" ? (
@@ -140,12 +140,12 @@ export function ChangeReviewQueue({
 						<FileDiff
 							fileDiff={selected.fileDiff}
 							options={{ ...DIFF_OPTIONS, diffStyle }}
-							className="w-full max-w-full rounded-xl border border-neutral-800"
+							className="w-full max-w-full rounded-lg border border-neutral-700/70"
 							style={{ minHeight: "8rem" }}
 						/>
 					</WorkerPoolContextProvider>
 				) : (
-					<pre className="max-h-[min(30rem,55vh)] overflow-auto rounded-lg border border-neutral-800 bg-black p-3 font-mono text-xs leading-relaxed text-neutral-200">
+					<pre className="max-h-[min(30rem,55vh)] overflow-auto rounded-lg border border-neutral-700/70 bg-black p-3 font-mono text-xs leading-relaxed text-neutral-200">
 						{selected.rawPatch}
 					</pre>
 				)}
