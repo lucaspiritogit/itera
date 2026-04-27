@@ -5,6 +5,7 @@ import {
   ChevronUp,
   MessageSquare,
   Navigation,
+  Square,
   X,
 } from "lucide-react";
 import { useState, type FormEvent, type KeyboardEvent } from "react";
@@ -37,7 +38,7 @@ export type ReviewPromptInputProps = {
 function Kbd({ children, className = "" }: { children: string; className?: string }) {
   return (
     <span
-      className={`inline-flex min-h-5 items-center rounded border border-neutral-700 bg-neutral-950 px-1.5 font-mono text-[10px] font-medium leading-none text-neutral-300 shadow-sm shadow-black/20 ${className}`}
+      className={`inline-flex min-h-5 items-center rounded border border-stone-700 bg-stone-950 px-1.5 font-mono text-[10px] font-medium leading-none text-stone-300 shadow-sm shadow-black/20 ${className}`}
     >
       {children}
     </span>
@@ -88,7 +89,7 @@ export function AgentPromptInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl border border-neutral-700/80 bg-neutral-900 p-2 shadow-xl shadow-black/30 transition focus-within:border-sky-500/70 focus-within:ring-2 focus-within:ring-sky-500/15"
+      className="rounded-xl border border-stone-700/80 bg-stone-900/95 p-2 shadow-xl shadow-black/35 transition focus-within:border-amber-400/70 focus-within:ring-2 focus-within:ring-amber-400/15"
     >
       <div className="relative">
         <textarea
@@ -98,22 +99,24 @@ export function AgentPromptInput({
           placeholder={placeholder}
           disabled={disabled}
           rows={2}
-          className="box-border max-h-40 min-h-16 w-full resize-none border-0 bg-transparent py-2 pl-2 pr-14 font-[inherit] text-sm leading-relaxed text-neutral-100 outline-none placeholder:text-neutral-600 disabled:opacity-60"
+          className="box-border max-h-40 min-h-16 w-full resize-none border-0 bg-transparent py-2 pl-2 pr-14 font-[inherit] text-sm leading-relaxed text-stone-100 outline-none placeholder:text-stone-600 disabled:opacity-60"
         />
         <button
           type="submit"
           disabled={!canSend}
           aria-label={active ? "Stop agent output" : "Send message"}
           title={active ? "Stop" : "Send"}
-          className={`absolute bottom-1.5 right-1.5 flex h-9 w-9 items-center justify-center rounded-full border text-white shadow-sm transition enabled:cursor-pointer disabled:cursor-not-allowed disabled:border-neutral-800 disabled:bg-neutral-900 disabled:text-neutral-600 disabled:shadow-none ${
+          className={`absolute bottom-1.5 right-1.5 flex h-9 w-9 items-center justify-center rounded-full border text-white shadow-sm transition enabled:cursor-pointer enabled:hover:scale-[1.03] disabled:cursor-not-allowed disabled:border-stone-800 disabled:bg-stone-900 disabled:text-stone-600 disabled:shadow-none ${
             active
               ? "border-red-500 bg-red-600 enabled:hover:bg-red-500"
-              : "border-sky-500 bg-sky-600 enabled:hover:bg-sky-500"
+              : "border-amber-400 bg-amber-600 enabled:hover:bg-amber-500"
           }`}
         >
-          <span aria-hidden className="text-base leading-none">
-            {active ? "■" : "↑"}
-          </span>
+          {active ? (
+            <Square className="h-3.5 w-3.5 fill-current" aria-hidden />
+          ) : (
+            <ArrowUp className="h-4 w-4" aria-hidden />
+          )}
         </button>
       </div>
     </form>
@@ -185,11 +188,11 @@ export function ReviewPromptInput({
   return (
     <form
       onSubmit={handleSubmit}
-      className="overflow-hidden rounded-xl border border-neutral-700/80 bg-neutral-900 shadow-2xl shadow-black/30"
+      className="overflow-hidden rounded-xl border border-stone-700/80 bg-stone-900/95 shadow-2xl shadow-black/35"
     >
-      <div className="flex items-center gap-3 border-b border-neutral-800 bg-neutral-950/85 px-4 py-3">
+      <div className="flex items-center gap-3 border-b border-stone-800 bg-stone-950/85 px-4 py-3">
         <div className="h-2 w-2 shrink-0 animate-pulse rounded-full bg-amber-300 shadow-[0_0_0_3px_rgba(251,191,36,0.14)]" />
-        <p className="m-0 text-sm font-medium text-neutral-100">
+        <p className="m-0 text-sm font-medium text-stone-100">
           Decision required: review this {reviewNoun} before continuing.
         </p>
       </div>
@@ -198,14 +201,14 @@ export function ReviewPromptInput({
         {mode === "actions" ? (
           <>
             <div className="mb-4 flex min-w-0 flex-wrap items-center gap-3">
-              <span className="text-sm text-neutral-400">
+              <span className="text-sm text-stone-400">
                 {safeIndex + 1} of {safeItemCount} items
               </span>
-              <span className="text-neutral-600">·</span>
-              <span className="text-sm text-neutral-400">{pendingCount} pending</span>
-              <span className="hidden text-neutral-600 sm:inline">·</span>
+              <span className="text-stone-600">·</span>
+              <span className="text-sm text-stone-400">{pendingCount} pending</span>
+              <span className="hidden text-stone-600 sm:inline">·</span>
               <span
-                className="hidden min-w-0 truncate font-mono text-xs text-neutral-500 sm:inline"
+                className="hidden min-w-0 truncate font-mono text-xs text-stone-500 sm:inline"
                 title={targetLabel}
               >
                 {targetLabel}
@@ -217,7 +220,7 @@ export function ReviewPromptInput({
                 type="button"
                 onClick={onAccept}
                 disabled={!canResolve}
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-emerald-500 bg-emerald-600 px-3 text-sm font-semibold text-white shadow-sm transition enabled:cursor-pointer enabled:hover:bg-emerald-500 disabled:cursor-not-allowed disabled:border-neutral-800 disabled:bg-neutral-900 disabled:text-neutral-600"
+                className="inline-flex h-9 items-center gap-2 rounded-md border border-emerald-500 bg-emerald-600 px-3 text-sm font-semibold text-white shadow-sm transition enabled:cursor-pointer enabled:hover:bg-emerald-500 disabled:cursor-not-allowed disabled:border-stone-800 disabled:bg-stone-900 disabled:text-stone-600"
               >
                 <Check className="h-4 w-4" aria-hidden />
                 {acceptLabel}
@@ -227,7 +230,7 @@ export function ReviewPromptInput({
                 type="button"
                 onClick={onDeny}
                 disabled={!canResolve}
-                className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-700 bg-neutral-800 px-3 text-sm font-medium text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-red-400 enabled:hover:text-red-200 disabled:cursor-not-allowed disabled:border-neutral-800 disabled:bg-neutral-900 disabled:text-neutral-600"
+                className="inline-flex h-9 items-center gap-2 rounded-md border border-stone-700 bg-stone-800 px-3 text-sm font-medium text-stone-100 transition enabled:cursor-pointer enabled:hover:border-red-400 enabled:hover:text-red-200 disabled:cursor-not-allowed disabled:border-stone-800 disabled:bg-stone-900 disabled:text-stone-600"
               >
                 <X className="h-4 w-4" aria-hidden />
                 {denyLabel}
@@ -241,7 +244,7 @@ export function ReviewPromptInput({
                   type="button"
                   onClick={() => setMode("ask")}
                   disabled={disabled || active}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-neutral-700 bg-neutral-950 px-2.5 text-xs font-medium text-neutral-200 transition enabled:cursor-pointer enabled:hover:border-sky-500/60 enabled:hover:bg-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-stone-700 bg-stone-950 px-2.5 text-xs font-medium text-stone-200 transition enabled:cursor-pointer enabled:hover:border-amber-400/60 enabled:hover:bg-stone-900 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <MessageSquare className="h-3.5 w-3.5" aria-hidden />
                   Ask
@@ -250,20 +253,20 @@ export function ReviewPromptInput({
                   type="button"
                   onClick={() => setMode("steer")}
                   disabled={disabled || active}
-                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-neutral-700 bg-neutral-950 px-2.5 text-xs font-medium text-neutral-200 transition enabled:cursor-pointer enabled:hover:border-orange-500/60 enabled:hover:bg-neutral-900 disabled:cursor-not-allowed disabled:opacity-50"
+                  className="inline-flex h-8 items-center gap-1.5 rounded-md border border-stone-700 bg-stone-950 px-2.5 text-xs font-medium text-stone-200 transition enabled:cursor-pointer enabled:hover:border-amber-400/60 enabled:hover:bg-stone-900 disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   <Navigation className="h-3.5 w-3.5" aria-hidden />
                   Steer
                 </button>
               </div>
 
-              <div className="flex items-center gap-2 text-xs text-neutral-500">
+              <div className="flex items-center gap-2 text-xs text-stone-500">
                 <button
                   type="button"
                   onClick={() => onNavigate?.("prev")}
                   disabled={!canNavigate || safeIndex === 0}
                   aria-label="Previous review item"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-neutral-400 transition enabled:cursor-pointer enabled:hover:border-neutral-700 enabled:hover:bg-neutral-950 enabled:hover:text-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-700"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-stone-400 transition enabled:cursor-pointer enabled:hover:border-stone-700 enabled:hover:bg-stone-950 enabled:hover:text-stone-100 disabled:cursor-not-allowed disabled:text-stone-700"
                 >
                   <ChevronUp className="h-4 w-4" aria-hidden />
                 </button>
@@ -272,7 +275,7 @@ export function ReviewPromptInput({
                   onClick={() => onNavigate?.("next")}
                   disabled={!canNavigate || safeIndex === safeItemCount - 1}
                   aria-label="Next review item"
-                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-neutral-400 transition enabled:cursor-pointer enabled:hover:border-neutral-700 enabled:hover:bg-neutral-950 enabled:hover:text-neutral-100 disabled:cursor-not-allowed disabled:text-neutral-700"
+                  className="inline-flex h-7 w-7 items-center justify-center rounded-md border border-transparent text-stone-400 transition enabled:cursor-pointer enabled:hover:border-stone-700 enabled:hover:bg-stone-950 enabled:hover:text-stone-100 disabled:cursor-not-allowed disabled:text-stone-700"
                 >
                   <ChevronDown className="h-4 w-4" aria-hidden />
                 </button>
@@ -293,11 +296,11 @@ export function ReviewPromptInput({
                   setMode("actions");
                   setMessage("");
                 }}
-                className="inline-flex h-7 items-center rounded-md px-2 text-neutral-400 transition enabled:cursor-pointer enabled:hover:bg-neutral-950 enabled:hover:text-neutral-100"
+                className="inline-flex h-7 items-center rounded-md px-2 text-stone-400 transition enabled:cursor-pointer enabled:hover:bg-stone-950 enabled:hover:text-stone-100"
               >
                 <X className="h-3.5 w-3.5" aria-hidden />
               </button>
-              <span className="text-sm font-medium capitalize text-neutral-100">
+              <span className="text-sm font-medium capitalize text-stone-100">
                 {mode}
               </span>
             </div>
@@ -309,19 +312,19 @@ export function ReviewPromptInput({
                 placeholder={placeholder}
                 disabled={disabled || active}
                 rows={3}
-                className="box-border min-h-20 w-full resize-none rounded-lg border border-neutral-800 bg-neutral-950/70 px-3 py-2 pr-14 text-sm leading-relaxed text-neutral-100 outline-none transition placeholder:text-neutral-500 focus:border-sky-500/70 focus:ring-2 focus:ring-sky-500/15 disabled:opacity-60"
+                className="box-border min-h-20 w-full resize-none rounded-lg border border-stone-800 bg-stone-950/70 px-3 py-2 pr-14 text-sm leading-relaxed text-stone-100 outline-none transition placeholder:text-stone-500 focus:border-amber-400/70 focus:ring-2 focus:ring-amber-400/15 disabled:opacity-60"
               />
               <button
                 type="submit"
                 disabled={!canSubmit}
                 aria-label="Send review message"
                 title="Send"
-                className="absolute bottom-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-sky-500 bg-sky-600 text-white shadow-sm transition enabled:cursor-pointer enabled:hover:bg-sky-500 disabled:cursor-not-allowed disabled:border-neutral-800 disabled:bg-neutral-900 disabled:text-neutral-600"
+                className="absolute bottom-3 right-3 inline-flex h-8 w-8 items-center justify-center rounded-full border border-amber-400 bg-amber-600 text-white shadow-sm transition enabled:cursor-pointer enabled:hover:bg-amber-500 disabled:cursor-not-allowed disabled:border-stone-800 disabled:bg-stone-900 disabled:text-stone-600"
               >
                 <ArrowUp className="h-4 w-4" aria-hidden />
               </button>
             </div>
-            <p className="m-0 mt-2 text-right text-[11px] text-neutral-500">
+            <p className="m-0 mt-2 text-right text-[11px] text-stone-500">
               <Kbd>⌘↵</Kbd> send
             </p>
           </div>

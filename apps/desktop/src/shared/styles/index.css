@@ -1,10 +1,26 @@
 @import 'tailwindcss';
 
 @layer base {
+  :root {
+    --surface-canvas: #090908;
+    --surface-panel: #12110f;
+    --surface-panel-raised: #181612;
+    --surface-inset: #0d0c0b;
+    --line-soft: rgba(214, 196, 154, 0.12);
+    --line-strong: rgba(214, 196, 154, 0.22);
+    --accent: #d6a94f;
+    --accent-soft: rgba(214, 169, 79, 0.13);
+    --shadow-panel: 0 24px 80px rgba(0, 0, 0, 0.38);
+  }
+
   html,
   body,
   #root {
     height: 100%;
+  }
+
+  html {
+    scroll-behavior: smooth;
   }
 
   #root {
@@ -14,16 +30,59 @@
   }
 
   body {
-    background: #050505;
-    color: #e5e5e5;
+    background:
+      radial-gradient(circle at 18% 0%, rgba(214, 169, 79, 0.08), transparent 30rem),
+      radial-gradient(circle at 88% 12%, rgba(90, 112, 95, 0.12), transparent 34rem),
+      linear-gradient(180deg, #11100e 0%, var(--surface-canvas) 42%, #070706 100%);
+    color: #e9e1d2;
     color-scheme: dark;
     font-family:
-      Inter, Geist, 'IBM Plex Sans', ui-sans-serif, system-ui, -apple-system,
-      BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      'Avenir Next', Geist, 'IBM Plex Sans', ui-sans-serif, system-ui,
+      -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-feature-settings: "ss01" 1, "cv05" 1;
     margin: 0 auto;
-    max-width: min(100%, 88rem);
+    max-width: min(100%, 92rem);
     width: 100%;
-    padding: 1rem 1.25rem 1.25rem;
+    padding: 1.125rem 1.25rem 1.25rem;
     box-sizing: border-box;
+  }
+
+  body::before {
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    content: "";
+    opacity: 0.38;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.022) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+    background-size: 32px 32px, 32px 32px;
+    mask-image: linear-gradient(180deg, #000 0%, transparent 86%);
+  }
+
+  * {
+    scrollbar-color: rgba(214, 196, 154, 0.28) rgba(9, 9, 8, 0.6);
+  }
+
+  button,
+  input,
+  textarea {
+    font: inherit;
+  }
+
+  button {
+    transform: translateZ(0);
+  }
+
+  button:enabled:active {
+    transform: translateY(1px);
+  }
+
+  button:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid rgba(214, 169, 79, 0.72);
+    outline-offset: 2px;
   }
 }

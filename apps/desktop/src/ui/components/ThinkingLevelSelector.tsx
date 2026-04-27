@@ -1,3 +1,4 @@
+import { ChevronUp, Gauge } from "lucide-react";
 import { useState } from "react";
 import type { ModelThinkingLevel } from "../../features/agent-session/agent-session/model-options";
 
@@ -26,20 +27,18 @@ export function ThinkingLevelSelector({
 				disabled={disabled}
 				aria-haspopup="listbox"
 				aria-expanded={open}
-				className="flex h-9 min-w-32 items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 px-2.5 text-xs text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-sky-500/70 disabled:opacity-60"
+				className="flex h-9 min-w-32 items-center gap-2 rounded-md border border-stone-700/80 bg-stone-950/90 px-2.5 text-xs text-stone-100 shadow-sm shadow-black/20 transition enabled:cursor-pointer enabled:hover:border-amber-400/70 enabled:hover:bg-stone-900 disabled:opacity-60"
 			>
-				<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-sky-500/40 bg-sky-500/10 text-[10px] text-sky-100">
-					T
+				<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-amber-400/40 bg-amber-400/10 text-amber-100">
+					<Gauge className="h-3.5 w-3.5" aria-hidden />
 				</span>
 				<span className="truncate">{formatThinkingLevel(value)}</span>
-				<span className="ml-auto text-neutral-500" aria-hidden>
-					^
-				</span>
+				<ChevronUp className="ml-auto h-3.5 w-3.5 text-stone-500" aria-hidden />
 			</button>
 			{open ? (
 				<div
 					role="listbox"
-					className="absolute bottom-full left-0 z-20 mb-1 w-full min-w-40 rounded-md border border-neutral-800 bg-black p-1 shadow-xl shadow-black/40"
+					className="absolute bottom-full left-0 z-20 mb-1 w-full min-w-40 rounded-md border border-stone-700/80 bg-stone-950 p-1 shadow-xl shadow-black/45"
 				>
 					{options.map((option) => (
 						<button
@@ -51,11 +50,11 @@ export function ThinkingLevelSelector({
 								onChange(option);
 								setOpen(false);
 							}}
-							className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs enabled:cursor-pointer enabled:hover:bg-neutral-900 ${option === value ? "text-sky-100" : "text-neutral-300"
+							className={`flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs enabled:cursor-pointer enabled:hover:bg-stone-900 ${option === value ? "text-amber-100" : "text-stone-300"
 								}`}
 						>
-							<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-sky-500/40 bg-sky-500/10 text-[10px] text-sky-100">
-								T
+							<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-amber-400/40 bg-amber-400/10 text-amber-100">
+								<Gauge className="h-3.5 w-3.5" aria-hidden />
 							</span>
 							<span>{formatThinkingLevel(option)}</span>
 						</button>

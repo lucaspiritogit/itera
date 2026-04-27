@@ -67,7 +67,7 @@ export function AgentDiffReview({
 
 	if (!patch || !patch.trim()) {
 		return (
-			<div className="flex min-h-[12rem] items-center justify-center rounded-xl border border-dashed border-neutral-800 bg-neutral-950 px-6 py-10 text-center text-sm text-neutral-400">
+			<div className="flex min-h-[12rem] items-center justify-center rounded-xl border border-dashed border-stone-800 bg-stone-950 px-6 py-10 text-center text-sm text-stone-400">
 				No code changes in this session yet.
 			</div>
 		);
@@ -75,7 +75,7 @@ export function AgentDiffReview({
 
 	if (renderAsRaw) {
 		return (
-			<pre className="max-h-[min(32rem,55vh)] overflow-auto rounded-xl border border-neutral-800 bg-black p-4 font-mono text-xs leading-relaxed text-neutral-200">
+			<pre className="max-h-[min(32rem,55vh)] overflow-auto rounded-xl border border-stone-800 bg-stone-950 p-4 font-mono text-xs leading-relaxed text-stone-200">
 				{patch}
 			</pre>
 		);
@@ -92,7 +92,7 @@ export function AgentDiffReview({
 						key={fd.cacheKey ?? `${fd.name}-${i}`}
 						fileDiff={fd}
 						options={{ ...DIFF_OPTIONS, diffStyle }}
-						className="w-full max-w-full rounded-xl border border-neutral-800 shadow-xl shadow-black/20"
+						className="w-full max-w-full rounded-xl border border-stone-800 shadow-xl shadow-black/25"
 						style={{ minHeight: "8rem" }}
 					/>
 				))}

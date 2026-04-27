@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createRoot } from "react-dom/client";
+import { ChevronUp, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import {
 	createAgentSessionOrchestrator,
 	createDefaultAgentSessionPorts,
@@ -103,7 +104,7 @@ function activeReviewCardId(snapshot: AgentSessionSnapshot): string | null {
 
 function AgentIcon({ iconUrl, label }: { iconUrl: string; label: string }) {
 	return (
-		<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-neutral-800 bg-neutral-100">
+		<span className="flex h-5 w-5 shrink-0 items-center justify-center rounded border border-stone-700/80 bg-stone-100">
 			<img src={iconUrl} alt="" aria-hidden className="h-3.5 w-3.5" />
 			<span className="sr-only">{label}</span>
 		</span>
@@ -131,18 +132,16 @@ function AgentSelector({
 				disabled={disabled}
 				aria-haspopup="listbox"
 				aria-expanded={open}
-				className="flex h-9 min-w-32 items-center gap-2 rounded-md border border-neutral-800 bg-neutral-950 px-2.5 text-xs text-neutral-100 transition enabled:cursor-pointer enabled:hover:border-sky-500/70 disabled:opacity-60"
+				className="flex h-9 min-w-32 items-center gap-2 rounded-md border border-stone-700/80 bg-stone-950/90 px-2.5 text-xs text-stone-100 shadow-sm shadow-black/20 transition enabled:cursor-pointer enabled:hover:border-amber-400/70 enabled:hover:bg-stone-900 disabled:opacity-60"
 			>
 				<AgentIcon iconUrl={selected.iconUrl} label={selected.label} />
 				<span className="truncate">{selected.label}</span>
-				<span className="ml-auto text-neutral-500" aria-hidden>
-					^
-				</span>
+				<ChevronUp className="ml-auto h-3.5 w-3.5 text-stone-500" aria-hidden />
 			</button>
 			{open ? (
 				<div
 					role="listbox"
-					className="absolute bottom-full left-0 z-20 mb-1 w-full min-w-40 rounded-md border border-neutral-800 bg-black p-1 shadow-xl shadow-black/40"
+					className="absolute bottom-full left-0 z-20 mb-1 w-full min-w-40 rounded-md border border-stone-700/80 bg-stone-950 p-1 shadow-xl shadow-black/45"
 				>
 					{AGENT_OPTIONS.map((option) => (
 						<button
@@ -154,7 +153,7 @@ function AgentSelector({
 								onChange(option.id);
 								setOpen(false);
 							}}
-							className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-neutral-100 enabled:cursor-pointer enabled:hover:bg-neutral-900"
+							className="flex w-full items-center gap-2 rounded px-2 py-1.5 text-left text-xs text-stone-100 enabled:cursor-pointer enabled:hover:bg-stone-900"
 						>
 							<AgentIcon iconUrl={option.iconUrl} label={option.label} />
 							<span>{option.label}</span>
@@ -312,39 +311,39 @@ const App = () => {
 		: snapshot.reviewBatch?.activeIndex ?? 0;
 
 	return (
-		<main className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden">
+		<main className="flex min-h-0 flex-1 flex-col gap-0 overflow-hidden rounded-xl border border-stone-700/70 bg-stone-950/70 shadow-[var(--shadow-panel)] backdrop-blur">
 			<div className="flex min-h-0 flex-1 flex-row gap-0 overflow-hidden">
 				{isSidebarCollapsed ? (
-					<div className="flex shrink-0 bg-black p-2">
+					<div className="flex shrink-0 border-r border-stone-800/90 bg-stone-950/80 p-2">
 						<button
 							type="button"
 							onClick={() => setIsSidebarCollapsed(false)}
 							aria-label="Open session sidebar"
 							title="Open session sidebar"
-							className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-950 text-sm font-medium text-sky-200 enabled:cursor-pointer enabled:hover:border-sky-500/70 enabled:hover:bg-neutral-900"
+							className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-700 bg-stone-900 text-amber-200 transition enabled:cursor-pointer enabled:hover:border-amber-400/70 enabled:hover:bg-stone-800"
 						>
-							›
+							<PanelLeftOpen className="h-4 w-4" aria-hidden />
 						</button>
 					</div>
 				) : (
-					<aside className="flex min-h-0 w-[min(100%,18rem)] shrink-0 flex-col gap-3 overflow-hidden bg-black pr-3">
+					<aside className="flex min-h-0 w-[min(100%,18rem)] shrink-0 flex-col gap-3 overflow-hidden border-r border-stone-800/90 bg-stone-950/80 p-3">
 						<div className="flex items-center justify-end">
 							<button
 								type="button"
 								onClick={() => setIsSidebarCollapsed(true)}
 								aria-label="Close session sidebar"
 								title="Close session sidebar"
-								className="flex h-8 w-8 items-center justify-center rounded-md border border-neutral-700 bg-neutral-950 text-sm text-sky-200 enabled:cursor-pointer enabled:hover:border-sky-500/70 enabled:hover:bg-neutral-900"
+								className="flex h-8 w-8 items-center justify-center rounded-md border border-stone-700 bg-stone-900 text-amber-200 transition enabled:cursor-pointer enabled:hover:border-amber-400/70 enabled:hover:bg-stone-800"
 							>
-								‹
+								<PanelLeftClose className="h-4 w-4" aria-hidden />
 							</button>
 						</div>
-						<p className="m-0 text-xs text-neutral-400">
+						<p className="m-0 text-xs leading-relaxed text-stone-400">
 							Status: {snapshot.status} · Mode: {snapshot.mode} · {import.meta.env.VITE_CODEX_BACKEND_WS}
 						</p>
 						<div className="flex flex-col gap-2 text-sm">
 							<label className="flex flex-col gap-1">
-								<span className="font-medium text-neutral-200">
+								<span className="font-medium text-stone-200">
 									Working directory
 								</span>
 								<input
@@ -353,14 +352,14 @@ const App = () => {
 									onChange={(e) => setCwd(e.target.value)}
 									disabled={snapshot.status === "connecting"}
 									placeholder="Optional ?cwd="
-									className="rounded-md border border-neutral-800 bg-neutral-950 px-2 py-1.5 font-mono text-xs text-neutral-100 outline-none placeholder:text-neutral-600 focus:border-sky-500/70 disabled:opacity-60"
+									className="rounded-md border border-stone-700/80 bg-stone-950 px-2 py-1.5 font-mono text-xs text-stone-100 shadow-inner shadow-black/20 outline-none placeholder:text-stone-600 focus:border-amber-400/70 disabled:opacity-60"
 								/>
 							</label>
 							<button
 								type="button"
 								onClick={() => setConnectNonce((n) => n + 1)}
 								disabled={snapshot.status === "connecting" || cwd.trim().length === 0}
-								className="self-start rounded-md border border-neutral-700 bg-neutral-950 px-3 py-1 text-xs text-neutral-100 enabled:cursor-pointer enabled:hover:bg-neutral-900 disabled:opacity-50"
+								className="self-start rounded-md border border-stone-700 bg-stone-900 px-3 py-1 text-xs text-stone-100 transition enabled:cursor-pointer enabled:hover:bg-stone-800 disabled:opacity-50"
 							>
 								Reconnect
 							</button>
@@ -368,7 +367,7 @@ const App = () => {
 								type="button"
 								onClick={openProjectFolder}
 								disabled={snapshot.status === "connecting"}
-								className="self-start rounded-md border border-sky-500/50 bg-sky-500/10 px-3 py-1 text-xs font-medium text-sky-100 enabled:cursor-pointer enabled:hover:bg-sky-500/15 disabled:opacity-50"
+								className="self-start rounded-md border border-amber-400/55 bg-amber-400/10 px-3 py-1 text-xs font-semibold text-amber-100 transition enabled:cursor-pointer enabled:hover:bg-amber-400/15 disabled:opacity-50"
 							>
 								Open folder
 							</button>
@@ -380,7 +379,7 @@ const App = () => {
 							<p
 								className={`m-0 wrap-break-word text-[11px] leading-relaxed ${latestSystem.role === "stderr"
 									? "text-red-300"
-									: "text-neutral-400"
+									: "text-stone-400"
 									}`}
 							>
 								{latestSystem.text}
@@ -388,14 +387,14 @@ const App = () => {
 						) : null}
 					</aside>
 				)}
-				<section className="flex min-h-0 min-w-0 flex-1 flex-col bg-black">
+				<section className="flex min-h-0 min-w-0 flex-1 flex-col bg-[linear-gradient(180deg,rgba(24,22,18,0.76),rgba(9,9,8,0.94))]">
 					<div className="flex min-h-0 flex-1 flex-col overflow-y-auto px-4 py-4">
 						<div className="flex min-h-full flex-col gap-4">
 							{snapshot.chatItems.map((item) => {
 								if (item.type === "user") {
 									return (
 										<div key={item.id} className="flex w-full justify-end">
-											<div className="max-w-[min(85%,42rem)] rounded-2xl rounded-br-md border border-sky-500/40 bg-sky-500/10 px-4 py-3 text-sm leading-relaxed text-sky-50 shadow-lg shadow-black/20">
+											<div className="max-w-[min(85%,42rem)] rounded-2xl rounded-br-md border border-amber-400/35 bg-amber-400/10 px-4 py-3 text-sm leading-relaxed text-amber-50 shadow-lg shadow-black/25">
 												{item.text}
 											</div>
 										</div>
@@ -404,7 +403,7 @@ const App = () => {
 								if (item.type === "assistant") {
 									return (
 										<div key={item.id} className="flex w-full justify-start">
-											<div className="max-w-[min(85%,42rem)] whitespace-pre-wrap rounded-2xl rounded-bl-md border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm leading-relaxed text-neutral-100 shadow-lg shadow-black/20">
+											<div className="max-w-[min(85%,42rem)] whitespace-pre-wrap rounded-2xl rounded-bl-md border border-stone-700/70 bg-stone-950/95 px-4 py-3 text-sm leading-relaxed text-stone-100 shadow-lg shadow-black/25">
 												{item.text}
 											</div>
 										</div>
@@ -434,19 +433,6 @@ const App = () => {
 								);
 							})}
 
-							{snapshot.pendingExplorationDecision && !snapshot.hasActiveTurn ? (
-								<div className="mx-auto flex w-full max-w-5xl items-start gap-3 rounded-lg border border-amber-400/60 bg-amber-400/10 px-3 py-2 shadow-lg shadow-amber-950/20">
-									<span
-										className="mt-0.5 h-2.5 w-2.5 shrink-0 rounded-full bg-amber-300 shadow-[0_0_0_3px_rgba(251,191,36,0.14)]"
-										aria-hidden
-									/>
-									<div className="min-w-0 flex-1">
-										<p className="m-0 text-xs font-semibold text-amber-100">
-											Decision required: review this exploration finding before continuing.
-										</p>
-									</div>
-								</div>
-							) : null}
 							{snapshot.pendingReviewDecision && !snapshot.hasActiveTurn ? (
 								<div className="mx-auto flex w-full max-w-5xl items-start gap-3 rounded-lg border border-amber-400/60 bg-amber-400/10 px-3 py-2 shadow-lg shadow-amber-950/20">
 									<span
@@ -462,19 +448,19 @@ const App = () => {
 							) : null}
 							{snapshot.hasActiveTurn ? (
 								<div
-									className="mx-auto flex w-full max-w-[min(100%,42rem)] items-start gap-2 rounded-lg border border-neutral-800 bg-neutral-950 px-3 py-2"
+									className="mx-auto flex w-full max-w-[min(100%,42rem)] items-start gap-2 rounded-lg border border-stone-700/80 bg-stone-950/90 px-3 py-2 shadow-lg shadow-black/20"
 									aria-live="polite"
 								>
 									<span
-										className="mt-1 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-sky-300"
+										className="mt-1 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-amber-300"
 										aria-hidden
 									/>
 									<div className="min-w-0 flex-1">
-										<p className="m-0 text-xs font-medium text-neutral-100">
+										<p className="m-0 text-xs font-medium text-stone-100">
 											{snapshot.activeStep?.title ?? "Working…"}
 										</p>
 										{snapshot.activeStep?.detail ? (
-											<p className="m-0 mt-0.5 break-all font-mono text-[10px] text-neutral-400">
+											<p className="m-0 mt-0.5 break-all font-mono text-[10px] text-stone-400">
 												{snapshot.activeStep.detail}
 											</p>
 										) : null}
@@ -484,7 +470,7 @@ const App = () => {
 							<div ref={chatEndRef} className="h-px" />
 						</div>
 					</div>
-					<div className="sticky bottom-0 z-10 shrink-0 bg-linear-to-t from-neutral-950 via-neutral-950/95 to-transparent px-4 pb-4 pt-4">
+					<div className="sticky bottom-0 z-10 shrink-0 bg-linear-to-t from-stone-950 via-stone-950/95 to-transparent px-4 pb-4 pt-5">
 						<div className="mx-auto flex w-full max-w-4xl flex-col gap-3">
 							<div className="flex flex-wrap items-center justify-end gap-2">
 								<AgentSelector

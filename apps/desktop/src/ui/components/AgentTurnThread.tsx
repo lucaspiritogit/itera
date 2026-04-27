@@ -38,26 +38,26 @@ export function AgentTurnThread({
 				return (
 					<section
 						key={turn.id}
-						className="flex flex-col gap-3 border-b border-neutral-900 pb-8 last:border-b-0 last:pb-0"
+						className="flex flex-col gap-3 border-b border-stone-900 pb-8 last:border-b-0 last:pb-0"
 					>
 						<div className="flex justify-center">
-							<div className="max-w-[min(100%,42rem)] rounded-2xl border border-neutral-800 bg-neutral-950 px-4 py-3 text-sm leading-relaxed text-neutral-100 shadow-xl shadow-black/20">
+							<div className="max-w-[min(100%,42rem)] rounded-2xl border border-stone-800 bg-stone-950 px-4 py-3 text-sm leading-relaxed text-stone-100 shadow-xl shadow-black/25">
 								{turn.prompt}
 							</div>
 						</div>
 						{showActiveChip && active ? (
 							<div
-								className="mx-auto flex w-full max-w-[min(100%,42rem)] items-start gap-2 rounded-lg border border-sky-500/40 bg-sky-500/10 px-3 py-2"
+								className="mx-auto flex w-full max-w-[min(100%,42rem)] items-start gap-2 rounded-lg border border-amber-400/40 bg-amber-400/10 px-3 py-2"
 								aria-live="polite"
 							>
 								<span
-									className="mt-1 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-sky-300"
+									className="mt-1 h-1.5 w-1.5 shrink-0 animate-pulse rounded-full bg-amber-300"
 									aria-hidden
 								/>
 								<div className="min-w-0 flex-1">
-									<p className="m-0 text-xs font-medium text-sky-100">{active.title}</p>
+									<p className="m-0 text-xs font-medium text-amber-100">{active.title}</p>
 									{active.detail ? (
-										<p className="m-0 mt-0.5 break-all font-mono text-[10px] text-sky-200/80">
+										<p className="m-0 mt-0.5 break-all font-mono text-[10px] text-amber-200/80">
 											{active.detail}
 										</p>
 									) : null}

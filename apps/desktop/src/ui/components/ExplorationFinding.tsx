@@ -24,14 +24,14 @@ export function ExplorationFinding({
 	}, [finding.code, finding.file, isResolved]);
 
 	return (
-		<article className="flex w-full max-w-5xl flex-col gap-0 overflow-hidden rounded-xl border border-neutral-700/80 bg-neutral-900 shadow-2xl shadow-black/30">
-			<header className="flex flex-wrap items-center justify-between gap-3 border-b border-neutral-800 bg-neutral-950 px-4 py-3">
+		<article className="flex w-full max-w-5xl flex-col gap-0 overflow-hidden rounded-xl border border-stone-700/80 bg-stone-900/95 shadow-2xl shadow-black/35">
+			<header className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-800 bg-stone-950 px-4 py-3">
 				<div className="min-w-0 flex-1">
-					<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-sky-300">
+					<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
 						Exploration finding
 					</p>
 					<p
-						className="m-0 mt-0.5 truncate font-mono text-sm text-neutral-100"
+						className="m-0 mt-0.5 truncate font-mono text-sm text-stone-100"
 						title={finding.file}
 					>
 						{finding.file}
@@ -55,11 +55,11 @@ export function ExplorationFinding({
 
 			{isCollapsed ? null : (
 				<>
-					<section className="border-b border-neutral-800 bg-neutral-950/70 px-4 py-3">
-						<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-sky-200">
+					<section className="border-b border-stone-800 bg-stone-950/70 px-4 py-3">
+						<p className="m-0 text-[10px] font-semibold uppercase tracking-wider text-amber-200">
 							What the agent found
 						</p>
-						<p className="m-0 mt-1 whitespace-pre-wrap text-sm leading-relaxed text-neutral-100">
+						<p className="m-0 mt-1 max-w-[68ch] whitespace-pre-wrap text-sm leading-relaxed text-stone-100">
 							{finding.reason}
 						</p>
 					</section>
@@ -72,14 +72,14 @@ export function ExplorationFinding({
 					/>
 				</>
 			)}
-			<footer className="flex justify-center border-t border-neutral-900 bg-neutral-950/80 px-4 py-1.5">
+			<footer className="flex justify-center border-t border-stone-900 bg-stone-950/80 px-4 py-1.5">
 				<button
 					type="button"
 					onClick={() => setIsCollapsed((current) => !current)}
 					aria-expanded={!isCollapsed}
 					aria-label={toggleLabel}
 					title={toggleLabel}
-					className="flex h-8 w-8 items-center justify-center rounded-full border border-neutral-800 bg-black text-neutral-200 enabled:cursor-pointer enabled:hover:border-sky-500/70 enabled:hover:text-sky-200"
+					className="flex h-8 w-8 items-center justify-center rounded-full border border-stone-800 bg-stone-950 text-stone-200 transition enabled:cursor-pointer enabled:hover:border-amber-400/70 enabled:hover:text-amber-200"
 				>
 					<CollapseToggleIcon collapsed={isCollapsed} />
 				</button>
@@ -196,9 +196,9 @@ function FileBody({
 	}, [visibleCode, language]);
 
 	return (
-		<section className="flex flex-col bg-neutral-950">
-			<div className="border-b border-neutral-900 px-4 py-2">
-				<p className="m-0 font-mono text-[11px] text-neutral-400">
+		<section className="flex flex-col bg-stone-950">
+			<div className="border-b border-stone-900 px-4 py-2">
+				<p className="m-0 font-mono text-[11px] text-stone-400">
 					{startLine ? `Excerpt starts at line ${startLine}` : "Code excerpt"}
 				</p>
 			</div>
